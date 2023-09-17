@@ -8,6 +8,7 @@
 ## TO-DO <a name="to-do"></a>
 
 - [x] Determinar formato do Grafo + Ler Arquivo
+- [ ] Corrigir Soma das Distâncias
 - [ ] Criar Heurística própria?
 - [x] Implementar Dijkstra
 - [ ] Heurística Arvesini ( terra plana )
