@@ -1,17 +1,27 @@
 import exemplo_gerar_grafo as funcao
 import time
 
-# qg
-# oeste americano
+''' Todo: Qgiz, Oeste Americano, Heuristica Arvesini, A*, DFS, Bi-Direcional '''
 
-def ler_grafo(nome_arquivo):
+''' FUNÇÃO LER_GRAFO
+    GRAFO -> { 1: [(2, 803), (12, 842), (1363, 2428)], 2: [(n1, ), (n2, ?), (nx, ?)], ... }
+    dict key = origem 
+    grafo[key] = [(destino_1, peso_1), (destino_2, peso_2), ...]
+'''
+
+''' FUNÇÃO LER_GRAFO
+    ARESTAS -> [('1', '2', '803'), ('1', '12', 842'), ('1', '1363', '2428'), ...]
+    Lista de tuplas com o formato (origem, destino, peso) para todas as estradas
+'''
+
+def ler_grafo(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINIDO ( ÍCARO )
     grafo = {}
     arestas = []
     with open(nome_arquivo, 'r') as arquivo:
         linhas = arquivo.readlines()
         for linha in linhas:
-            if linha.startswith('a'): # if linha[0] == 'a'
-                partes = linha.strip().split() # dividir linha
+            if linha.startswith('a'): #if linha[0] == 'a'
+                partes = linha.strip().split()
                 origem = int(partes[1])
                 destino = int(partes[2])
                 distancia = int(partes[3])
@@ -19,11 +29,12 @@ def ler_grafo(nome_arquivo):
                     grafo[origem] = []
                 grafo[origem].append((destino, distancia))
                 arestas.append((str(origem), str(destino), distancia))
+    # print(arestas) #teste
+    # print(grafo) #teste
     return grafo, arestas
 
-#TESTE
-
-def encontrar_caminho(anteriores, origem, destino):
+#FUNÇÃO QUE MAPEIA O CAMINHO TRAÇADO
+def encontrar_caminho(anteriores, origem, destino): #CONCLUÍDA MAS NÃO VERIFICADA ( ÍCARO )
     caminho = []
     no_atual = destino
     while no_atual is not None:
@@ -32,8 +43,8 @@ def encontrar_caminho(anteriores, origem, destino):
     caminho.reverse()
     return caminho
 
+''' IGNORAR
 
-'''
 def ler_grafo_para_plotar(nome_arquivo):
     arestas = []
     with open(nome_arquivo, 'r') as arquivo:
@@ -48,7 +59,7 @@ def ler_grafo_para_plotar(nome_arquivo):
     return arestas
 '''
 
-def dijkstra_comprehension(grafo, origem):
+def dijkstra_comprehension(grafo, origem): #FUNCIONAL CONCLUÍDA ( ÍCARO )
     #definir todos os nós para infinito
     distancias = {no: float('inf') for no in grafo} 
     #definir todos os nós anteriores como nulo
@@ -78,60 +89,8 @@ def dijkstra_comprehension(grafo, origem):
 
     return distancias, anteriores
 
-
-'''
-funcao dijkstra(graph, source)
-
-criar vertex set Q
-
-para cada vertex v em graph:
-    distancia[v] <- infinito
-    anterior[v] <- indefinido
-    adicionar v para Q
-distancia[source] <- 0
-
-enquanto Q não estiver vazia faça
-    u <- vertex in Q com minima distancia[u]
-    
-    remover u de Q
-
-    para cada vizinho v de u:
-        alt <- distancia[u] + tamanho( u, v)
-        se alt < distancia[v]:
-            distancia[v] <- alt
-            anterior[v] <- u
-
-retorne distancia[], anterior[]
-'''
-
-'''
-def dijkstra(G, startingNode):
-	visited = set()
-	parentsMap = {}
-	pq = []
-	nodeCosts = defaultdict(lambda: float('inf'))
-	nodeCosts[startingNode] = 0
-	heap.heappush(pq, (0, startingNode))
- 
-	while pq:
-		# go greedily by always extending the shorter cost nodes first
-		_, node = heap.heappop(pq)
-		visited.add(node)
- 
-		for adjNode, weight in G[node].items():
-			if adjNode in visited:	continue
-				
-			newCost = nodeCosts[node] + weight
-			if nodeCosts[adjNode] > newCost:
-				parentsMap[adjNode] = node
-				nodeCosts[adjNode] = newCost
-				heap.heappush(pq, (newCost, adjNode))
-        
-	return parentsMap, nodeCosts
-'''
-
 def main():
-    nome_arquivo = 'newyork_roads.gr' 
+    nome_arquivo = './src/newyork_roads.gr' 
     grafo, edges = ler_grafo(nome_arquivo)
     origem = 1  
     destino = 263466
@@ -145,7 +104,6 @@ def main():
 
     funcao.desenhar_grafo(edges[0:500])
 
-# arvesini
-
 if __name__ == "__main__":
     main()
+
