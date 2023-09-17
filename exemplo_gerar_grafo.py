@@ -23,3 +23,4 @@ def desenhar_grafo(edges):
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=12, font_color='red')
     plt.title("Mapa do Grafo")
     plt.show()
+

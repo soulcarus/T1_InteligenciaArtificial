@@ -1,7 +1,7 @@
 import exemplo_gerar_grafo as funcao
 import time
 
-''' Todo: Qgiz, Oeste Americano, Heuristica Harvesine, A*, DFS, Bi-Direcional '''
+''' Todo: Qgiz, Oeste Americano, Heuristica Haversine, A*, DFS, Bi-Direcional '''
 
 ''' FUNÇÃO LER_GRAFO
     GRAFO -> { 1: [(2, 803), (12, 842), (1363, 2428)], 2: [(n1, ), (n2, ?), (nx, ?)], ... }
@@ -93,7 +93,7 @@ def main():
     nome_arquivo = './src/newyork_roads.gr' 
     grafo, edges = ler_grafo(nome_arquivo)
     origem = 1  
-    destino = 263466
+    destino = 1356
     distancias, anteriores = dijkstra_comprehension(grafo, origem)
 
     distancia_minima = distancias[destino]
@@ -102,7 +102,7 @@ def main():
     print(f'Distância mínima de {origem} para {destino}: {distancia_minima}')
     print(f'Caminho: {caminho}')
 
-    funcao.desenhar_grafo(edges[0:500])
+    # funcao.desenhar_grafo(edges[0:500])
 
 if __name__ == "__main__":
     main()
