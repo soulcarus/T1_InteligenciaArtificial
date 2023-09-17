@@ -1,7 +1,7 @@
 import exemplo_gerar_grafo as funcao
 import time
 
-''' Todo: Qgiz, Oeste Americano, Heuristica Arvesini, A*, DFS, Bi-Direcional '''
+''' Todo: Qgiz, Oeste Americano, Heuristica Harvesine, A*, DFS, Bi-Direcional '''
 
 ''' FUNÇÃO LER_GRAFO
     GRAFO -> { 1: [(2, 803), (12, 842), (1363, 2428)], 2: [(n1, ), (n2, ?), (nx, ?)], ... }
