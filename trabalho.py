@@ -89,8 +89,28 @@ def dijkstra_comprehension(grafo, origem): #FUNCIONAL CONCLUÍDA ( ÍCARO )
 
     return distancias, anteriores
 
+#Função que calcula a linha reta entre duas coordenadas (terra plana), ou seja,
+#calcula a distância euclideana entre dois pontos.
+def euclidean_dist(v1, v2): #Função concluida (Carlos Gabriel)
+    if v1 == v2:
+        return 0.00
+    coord1x, coord1y, coord2x, coord2y = 0, 0, 0, 0
+    with open('USA-road-d.NY.co', 'r') as file:
+        lines = file.readlines()
+        for line in lines:
+            if line.startswith(f"v {v1}"):
+                parts = line.strip().split()
+                coord1x = int(parts[2])
+                coord1y = int(parts[3])
+            if line.startswith(f"v {v2}"):
+                parts = line.strip().split()
+                coord2x = int(parts[2])
+                coord2y = int(parts[3])
+    d = (((coord2x - coord1x) ** 2) + ((coord2y - coord1y) ** 2)) ** (1/2)
+    return d
+
 def main():
-    nome_arquivo = './src/newyork_roads.gr' 
+    nome_arquivo = 'USA-road-d.NY.gr'
     grafo, edges = ler_grafo(nome_arquivo)
     origem = 1  
     destino = 1356
@@ -101,6 +121,8 @@ def main():
 
     print(f'Distância mínima de {origem} para {destino}: {distancia_minima}')
     print(f'Caminho: {caminho}')
+    
+    print(euclidean_dist(206203, 206204))
 
     # funcao.desenhar_grafo(edges[0:500])
 
