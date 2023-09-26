@@ -3,18 +3,18 @@ import time
 
 ''' Todo: Qgiz, Oeste Americano, Heuristica Haversine, A*, DFS, Bi-Direcional '''
 
-''' FUNÇÃO LER_GRAFO
+''' FUNÇÃO ler_grafo_arcos
     GRAFO -> { 1: [(2, 803), (12, 842), (1363, 2428)], 2: [(n1, ), (n2, ?), (nx, ?)], ... }
     dict key = origem 
     grafo[key] = [(destino_1, peso_1), (destino_2, peso_2), ...]
 '''
 
-''' FUNÇÃO LER_GRAFO
+''' FUNÇÃO ler_grafo_arcos
     ARESTAS -> [('1', '2', '803'), ('1', '12', 842'), ('1', '1363', '2428'), ...]
     Lista de tuplas com o formato (origem, destino, peso) para todas as estradas
 '''
 
-def ler_grafo(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINIDO ( ÍCARO )
+def ler_grafo_arcos(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINIDO ( ÍCARO )
     grafo = {}
     arestas = []
     with open(nome_arquivo, 'r') as arquivo:
@@ -33,6 +33,23 @@ def ler_grafo(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINIDO ( ÍCAR
     # print(grafo) #teste
     return grafo, arestas
 
+def ler_grafo_coordenadas(nome_arquivo):
+    grafo = {}
+    coordenadas = []
+    with open(nome_arquivo, 'r') as arquivo:
+        linhas = arquivo.readlines()
+        for linha in linhas:
+            if linha.startswith('v'):
+                partes = linha.strip().split()
+                no = int(partes[1])
+                x = int(partes[2])
+                y = int(partes[3])
+                if no not in grafo:
+                    grafo[no] = []
+                coordenadas.append((no, x, y))
+    return grafo, coordenadas
+
+
 #FUNÇÃO QUE MAPEIA O CAMINHO TRAÇADO
 def encontrar_caminho(anteriores, origem, destino): #CONCLUÍDA MAS NÃO VERIFICADA ( ÍCARO )
     caminho = []
@@ -45,7 +62,7 @@ def encontrar_caminho(anteriores, origem, destino): #CONCLUÍDA MAS NÃO VERIFIC
 
 ''' IGNORAR
 
-def ler_grafo_para_plotar(nome_arquivo):
+def ler_grafo_arcos_para_plotar(nome_arquivo):
     arestas = []
     with open(nome_arquivo, 'r') as arquivo:
         linhas = arquivo.readlines()
@@ -157,7 +174,7 @@ def a_star_search(initialVertice, finalVertice, graph):
 
 def main():
     nome_arquivo = 'USA-road-d.NY.gr'
-    grafo, edges = ler_grafo(nome_arquivo)
+    grafo, edges = ler_grafo_arcos(nome_arquivo)
     # origem = 1  
     # destino = 1356
     # distancias, anteriores = dijkstra_comprehension(grafo, origem)
