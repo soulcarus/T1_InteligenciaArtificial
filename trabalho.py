@@ -109,20 +109,67 @@ def euclidean_dist(v1, v2): #Função concluida (Carlos Gabriel)
     d = (((coord2x - coord1x) ** 2) + ((coord2y - coord1y) ** 2)) ** (1/2)
     return d
 
+def f_calc(vertice): #Função concluida (Carlos Gabriel)
+    # f(n)=g(n)+h(n),
+    # f(n) = custo total estimado do caminho através do nó n
+    # g(n) = custo até agora para chegar ao nó n
+    # h(n) = custo estimado de n até a meta. Esta é a parte heurística da função de custo, portanto é como uma suposição.
+    return vertice["g"] + vertice["h"]
+
+def a_star_search(initialVertice, finalVertice, graph):
+    initialVerticeDict = {
+        "father": None,
+        "vertice": initialVertice,
+        "g": 0,
+        "h": euclidean_dist(initialVertice, finalVertice),
+    }
+    openingList = [initialVerticeDict]
+    closedList = []
+    while (True):
+        if (len(openingList) == 0):
+            print("Sem solução")
+            break
+        current_vertice = min(openingList, key=lambda v: f_calc(v))
+        print(f"current: {current_vertice}")
+        if current_vertice["vertice"] == finalVertice:
+            print(current_vertice["vertice"])
+            break
+        else:
+            openingList.remove(current_vertice)
+            closedList.append(current_vertice)
+            for neighbor, dist in graph[current_vertice["vertice"]]:
+                print(f"visinho: {neighbor}, dist: {dist}")
+                neighborDict = {
+                    "father": current_vertice["vertice"],
+                    "vertice": neighbor,
+                    "g": current_vertice["g"] + dist,
+                    "h": euclidean_dist(neighbor, finalVertice),
+                }
+                openingList.append(neighborDict)
+    #           if (vizinho tem valor g menor que o atual e está na lista fechada):
+    #               substitua o vizinho pelo novo valor g inferior
+    #               o nó atual agora é o pai do vizinho
+    #           else if (o valor atual de g é menor e este vizinho está na lista aberta):
+    #               substitua o vizinho pelo novo valor g inferior
+    #               mude o pai do vizinho para o nosso nó atual
+    #           else if este vizinho is not in ambas as listas:
+    #               adicione-o à lista aberta e defina seu g
+
 def main():
     nome_arquivo = 'USA-road-d.NY.gr'
     grafo, edges = ler_grafo(nome_arquivo)
-    origem = 1  
-    destino = 1356
-    distancias, anteriores = dijkstra_comprehension(grafo, origem)
+    # origem = 1  
+    # destino = 1356
+    # distancias, anteriores = dijkstra_comprehension(grafo, origem)
 
-    distancia_minima = distancias[destino]
-    caminho = encontrar_caminho(anteriores, origem, destino)
+    # distancia_minima = distancias[destino]
+    # caminho = encontrar_caminho(anteriores, origem, destino)
 
-    print(f'Distância mínima de {origem} para {destino}: {distancia_minima}')
-    print(f'Caminho: {caminho}')
+    # print(f'Distância mínima de {origem} para {destino}: {distancia_minima}')
+    # print(f'Caminho: {caminho}')
     
-    print(euclidean_dist(206203, 206204))
+    # print(euclidean_dist(206203, 206204))
+    a_star_search(206198, 206207, grafo)
 
     # funcao.desenhar_grafo(edges[0:500])
 
