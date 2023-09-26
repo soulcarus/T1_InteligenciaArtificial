@@ -60,22 +60,6 @@ def encontrar_caminho(anteriores, origem, destino): #CONCLUÍDA MAS NÃO VERIFIC
     caminho.reverse()
     return caminho
 
-''' IGNORAR
-
-def ler_grafo_arcos_para_plotar(nome_arquivo):
-    arestas = []
-    with open(nome_arquivo, 'r') as arquivo:
-        linhas = arquivo.readlines()
-        for linha in linhas:
-            if linha.startswith('a'):
-                partes = linha.strip().split()
-                no_origem = partes[1]
-                no_destino = partes[2]
-                tamanho_aresta = int(partes[3])
-                arestas.append((no_origem, no_destino, tamanho_aresta))
-    return arestas
-'''
-
 def dijkstra_comprehension(grafo, origem): #FUNCIONAL CONCLUÍDA ( ÍCARO )
     #definir todos os nós para infinito
     distancias = {no: float('inf') for no in grafo} 
