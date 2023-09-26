@@ -8,13 +8,13 @@
 ## TO-DO <a name="to-do"></a>
 
 - [x] Determinar formato do Grafo + Ler Arquivo
-- [ ] Corrigir Soma das Distâncias
+- [x] Corrigir Soma das Distâncias
 - [ ] Criar Heurística própria?
 - [x] Implementar Dijkstra
-- [ ] Heurística Arvesini ( terra plana )
+- [x] Heurística terra plana
 - [ ] Debater Algoritmos
 - [ ] Implementar DFS ou DFS-Contorno
-- [ ] Implementar A* ou IDA*
+- [x] Implementar A* ou IDA*
 - [ ] Calcular gasto de memória e tempo
 - [ ] Gerar opção de selecionar o algoritmo
 - [ ] Gerar Visualização?
