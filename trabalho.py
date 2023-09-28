@@ -3,13 +3,13 @@ import time
 
 ''' Todo: Qgiz, Oeste Americano, Heuristica Haversine, A*, DFS, Bi-Direcional '''
 
-''' FUNÇÃO LER_GRAFO
+''' FUNÇÃO ler_grafo
     GRAFO -> { 1: [(2, 803), (12, 842), (1363, 2428)], 2: [(n1, ), (n2, ?), (nx, ?)], ... }
     dict key = origem 
     grafo[key] = [(destino_1, peso_1), (destino_2, peso_2), ...]
 '''
 
-''' FUNÇÃO LER_GRAFO
+''' FUNÇÃO ler_grafo
     ARESTAS -> [('1', '2', '803'), ('1', '12', 842'), ('1', '1363', '2428'), ...]
     Lista de tuplas com o formato (origem, destino, peso) para todas as estradas
 '''
@@ -42,22 +42,6 @@ def encontrar_caminho(anteriores, origem, destino): #CONCLUÍDA MAS NÃO VERIFIC
         no_atual = anteriores[no_atual]
     caminho.reverse()
     return caminho
-
-''' IGNORAR
-
-def ler_grafo_para_plotar(nome_arquivo):
-    arestas = []
-    with open(nome_arquivo, 'r') as arquivo:
-        linhas = arquivo.readlines()
-        for linha in linhas:
-            if linha.startswith('a'):
-                partes = linha.strip().split()
-                no_origem = partes[1]
-                no_destino = partes[2]
-                tamanho_aresta = int(partes[3])
-                arestas.append((no_origem, no_destino, tamanho_aresta))
-    return arestas
-'''
 
 def dijkstra_comprehension(grafo, origem): #FUNCIONAL CONCLUÍDA ( ÍCARO )
     #definir todos os nós para infinito
@@ -157,19 +141,41 @@ def a_star_search(initialVertice, finalVertice, graph):
 
 def main():
     nome_arquivo = 'USA-road-d.NY.gr'
+    print("origem atual: 206198")
+    print("destino atual: 206207")
+    choose = input("alterar origem e destino? S/N? -> ")
+
+    origem = 206198
+    destino = 206207
+
+    if choose == 'S':
+        origem = int(input("Origem: "))
+        destino = int(input("Destino: "))
+
     grafo, edges = ler_grafo(nome_arquivo)
-    # origem = 1  
-    # destino = 1356
-    # distancias, anteriores = dijkstra_comprehension(grafo, origem)
 
-    # distancia_minima = distancias[destino]
-    # caminho = encontrar_caminho(anteriores, origem, destino)
+    while True:
+        print("1 - A*")
+        print("2 - Dijkstra")
+        print("0 - Sair")
+        
+        entrada = input("Selecione o Algoritmo -> ")
 
-    # print(f'Distância mínima de {origem} para {destino}: {distancia_minima}')
-    # print(f'Caminho: {caminho}')
-    
-    # print(euclidean_dist(206203, 206204))
-    a_star_search(206198, 206207, grafo)
+        if entrada == '1':
+            a_star_search(origem, destino, grafo)
+
+        elif entrada == '2':
+            
+            distancias, anteriores = dijkstra_comprehension(grafo, origem)
+            distancia_minima = distancias[destino]
+            caminho = encontrar_caminho(anteriores, origem, destino)
+            print(f'Distância mínima de {origem} para {destino}: {distancia_minima}')
+            print(f'Caminho: {caminho}')
+
+        elif entrada == '0':
+            break
+        else:
+            print("Opção Inválida!")
 
     # funcao.desenhar_grafo(edges[0:500])
 
