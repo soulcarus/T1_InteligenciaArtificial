@@ -157,7 +157,7 @@ def a_star_search(initialVertice, finalVertice, graph):
     #               adicione-o à lista aberta e defina seu g
 
 def main():
-    nome_arquivo = 'USA-road-d.NY.gr'
+    nome_arquivo = 'USA-road-d.NY.co'
     grafo, edges = ler_grafo_arcos(nome_arquivo)
     # origem = 1  
     # destino = 1356
