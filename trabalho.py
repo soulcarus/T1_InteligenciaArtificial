@@ -49,7 +49,6 @@ def ler_grafo_coordenadas(nome_arquivo):
                 coordenadas.append((no, x, y))
     return grafo, coordenadas
 
-
 #FUNÇÃO QUE MAPEIA O CAMINHO TRAÇADO
 def encontrar_caminho(anteriores, origem, destino): #CONCLUÍDA MAS NÃO VERIFICADA ( ÍCARO )
     caminho = []
@@ -157,20 +156,42 @@ def a_star_search(initialVertice, finalVertice, graph):
     #               adicione-o à lista aberta e defina seu g
 
 def main():
-    nome_arquivo = 'USA-road-d.NY.co'
+    nome_arquivo = 'USA-road-d.NY.gr'
+    print("origem atual: 206198")
+    print("destino atual: 206207")
+    choose = input("alterar origem e destino? S/N? -> ")
+
+    origem = 206198
+    destino = 206207
+
+    if choose == 'S':
+        origem = int(input("Origem: "))
+        destino = int(input("Destino: "))
+
     grafo, edges = ler_grafo_arcos(nome_arquivo)
-    # origem = 1  
-    # destino = 1356
-    # distancias, anteriores = dijkstra_comprehension(grafo, origem)
 
-    # distancia_minima = distancias[destino]
-    # caminho = encontrar_caminho(anteriores, origem, destino)
+    while True:
+        print("1 - A*")
+        print("2 - Dijkstra")
+        print("0 - Sair")
+        
+        entrada = input("Selecione o Algoritmo -> ")
 
-    # print(f'Distância mínima de {origem} para {destino}: {distancia_minima}')
-    # print(f'Caminho: {caminho}')
-    
-    # print(euclidean_dist(206203, 206204))
-    a_star_search(206198, 206207, grafo)
+        if entrada == '1':
+            a_star_search(origem, destino, grafo)
+
+        elif entrada == '2':
+            
+            distancias, anteriores = dijkstra_comprehension(grafo, origem)
+            distancia_minima = distancias[destino]
+            caminho = encontrar_caminho(anteriores, origem, destino)
+            print(f'Distância mínima de {origem} para {destino}: {distancia_minima}')
+            print(f'Caminho: {caminho}')
+
+        elif entrada == '0':
+            break
+        else:
+            print("Opção Inválida!")
 
     # funcao.desenhar_grafo(edges[0:500])
 
