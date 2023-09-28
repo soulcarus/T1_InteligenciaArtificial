@@ -107,6 +107,7 @@ def euclidean_dist(v1, v2): #Função concluida (Carlos Gabriel)
                 coord2x = int(parts[2])
                 coord2y = int(parts[3])
     d = (((coord2x - coord1x) ** 2) + ((coord2y - coord1y) ** 2)) ** (1/2)
+    # dividir por 1 milhão as coordenadas. d multiplica fator de distancia de coordenada
     return d
 
 def f_calc(vertice): #Função concluida (Carlos Gabriel)
