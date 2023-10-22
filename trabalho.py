@@ -1,5 +1,6 @@
 import exemplo_gerar_grafo as funcao
 import time
+import math
 
 ''' Todo: Qgiz, Oeste Americano, Heuristica Haversine, A*, DFS, Bi-Direcional '''
 
@@ -93,6 +94,34 @@ def euclidean_dist(v1, v2): #Função concluida (Carlos Gabriel)
     d = (((coord2x - coord1x) ** 2) + ((coord2y - coord1y) ** 2)) ** (1/2)
     return d
 
+def haversine_dist(lat1, long1, lat2, long2): #Função concluida (João Ícaro)
+    if lat1 == lat2 and long1 == long2:
+        return 0.00
+    
+    #divisões por 1 milhao
+    lat1 = lat1 / 1e6
+    lat2 = lat2 / 1e6
+    long1 = long1 / 1e6
+    long2 = long2 / 1e6
+    
+    raio = 6371000
+
+    #converter graus decimais em radianos
+    lat1, long1, lat2, long2 = map(math.radians, [lat1, long1, lat2, long2])
+
+    # Diferenças de latitude e longitude
+    dlat = lat2 - lat1
+    dlon = long2 - long1
+
+    # Fórmula de Haversine
+    a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+    # Distância em metros
+    distancia = raio * c
+
+    return distancia
+
 def f_calc(vertice): #Função concluida (Carlos Gabriel)
     # f(n)=g(n)+h(n),
     # f(n) = custo total estimado do caminho através do nó n
@@ -140,7 +169,8 @@ def a_star_search(initialVertice, finalVertice, graph):
     #               adicione-o à lista aberta e defina seu g
 
 def main():
-    nome_arquivo = 'USA-road-d.NY.gr'
+    import time
+    nome_arquivo = './src/allUSA_roads.gr'
     print("origem atual: 206198")
     print("destino atual: 206207")
     choose = input("alterar origem e destino? S/N? -> ")
@@ -151,9 +181,10 @@ def main():
     if choose == 'S':
         origem = int(input("Origem: "))
         destino = int(input("Destino: "))
-
+    inicio = time.time()
     grafo, edges = ler_grafo(nome_arquivo)
-
+    fim = time.time()
+    print(f'tempo para ler arquivo: {inicio - fim}')
     while True:
         print("1 - A*")
         print("2 - Dijkstra")
