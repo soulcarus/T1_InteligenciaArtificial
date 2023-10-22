@@ -1,6 +1,7 @@
 import exemplo_gerar_grafo as funcao
 import time
 import math
+import time
 
 ''' Todo: Qgiz, Oeste Americano, Heuristica Haversine, A*, DFS, Bi-Direcional '''
 
@@ -15,7 +16,7 @@ import math
     Lista de tuplas com o formato (origem, destino, peso) para todas as estradas
 '''
 
-def ler_grafo(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINIDO ( ÍCARO )
+def ler_grafo_distancia(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINIDO ( ÍCARO )
     grafo = {}
     arestas = []
     with open(nome_arquivo, 'r') as arquivo:
@@ -29,10 +30,10 @@ def ler_grafo(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINIDO ( ÍCAR
                 if origem not in grafo:
                     grafo[origem] = []
                 grafo[origem].append((destino, distancia))
-                arestas.append((str(origem), str(destino), distancia))
+                # arestas.append((str(origem), str(destino), distancia))
     # print(arestas) #teste
     # print(grafo) #teste
-    return grafo, arestas
+    return grafo
 
 #FUNÇÃO QUE MAPEIA O CAMINHO TRAÇADO
 def encontrar_caminho(anteriores, origem, destino): #CONCLUÍDA MAS NÃO VERIFICADA ( ÍCARO )
@@ -79,26 +80,42 @@ def dijkstra_comprehension(grafo, origem): #FUNCIONAL CONCLUÍDA ( ÍCARO )
 def euclidean_dist(v1, v2): #Função concluida (Carlos Gabriel)
     if v1 == v2:
         return 0.00
-    coord1x, coord1y, coord2x, coord2y = 0, 0, 0, 0
+    lat1, long1, lat2, long2 = 0, 0, 0, 0
     with open('USA-road-d.NY.co', 'r') as file:
         lines = file.readlines()
         for line in lines:
             if line.startswith(f"v {v1}"):
                 parts = line.strip().split()
-                coord1x = int(parts[2])
-                coord1y = int(parts[3])
+                lat1 = int(parts[2])
+                long1 = int(parts[3])
             if line.startswith(f"v {v2}"):
                 parts = line.strip().split()
-                coord2x = int(parts[2])
-                coord2y = int(parts[3])
-    d = (((coord2x - coord1x) ** 2) + ((coord2y - coord1y) ** 2)) ** (1/2)
+                lat2 = int(parts[2])
+                long2 = int(parts[3])
+    lat1 = lat1 / 1e6
+    lat2 = lat2 / 1e6
+    long1 = long1 / 1e6
+    long2 = long2 / 1e6
+    
+    d = (((lat2 - lat1) ** 2) + ((long2 - long1) ** 2)) ** (1/2)
     return d
 
-def haversine_dist(lat1, long1, lat2, long2): #Função concluida (João Ícaro)
-    if lat1 == lat2 and long1 == long2:
+def haversine_dist(v1, v2): #Função concluida (João Ícaro)
+    if v1 == v2:
         return 0.00
-    
-    #divisões por 1 milhao
+    lat1, long1, lat2, long2 = 0, 0, 0, 0
+    with open('USA-road-d.NY.co', 'r') as file:
+        lines = file.readlines()
+        for line in lines:
+            if line.startswith(f"v {v1}"):
+                parts = line.strip().split()
+                lat1 = int(parts[2])
+                long1 = int(parts[3])
+            if line.startswith(f"v {v2}"):
+                parts = line.strip().split()
+                lat2 = int(parts[2])
+                long2 = int(parts[3])
+
     lat1 = lat1 / 1e6
     lat2 = lat2 / 1e6
     long1 = long1 / 1e6
@@ -129,75 +146,126 @@ def f_calc(vertice): #Função concluida (Carlos Gabriel)
     # h(n) = custo estimado de n até a meta. Esta é a parte heurística da função de custo, portanto é como uma suposição.
     return vertice["g"] + vertice["h"]
 
-def a_star_search(initialVertice, finalVertice, graph):
-    initialVerticeDict = {
-        "father": None,
-        "vertice": initialVertice,
-        "g": 0,
-        "h": euclidean_dist(initialVertice, finalVertice),
-    }
+def a_star_search(initialVertice, finalVertice, graph, heuristica):
+
+    tempo_inicial = time.time()
+    if heuristica == "euclidiana":
+        initialVerticeDict = {
+            "father": None,
+            "vertice": initialVertice,
+            "g": 0,
+            "h": euclidean_dist(initialVertice, finalVertice),
+        }
+    elif heuristica == "haversine":
+        initialVerticeDict = {
+            "father": None,
+            "vertice": initialVertice,
+            "g": 0,
+            "h": haversine_dist(initialVertice, finalVertice),
+        }
+    else:
+        print("Heurística inválida.")
+        return
+
     openingList = [initialVerticeDict]
     closedList = []
-    while (True):
-        if (len(openingList) == 0):
-            print("Sem solução")
-            break
+    contador_expansao = 0
+
+    while openingList:
+        contador_expansao += 1
         current_vertice = min(openingList, key=lambda v: f_calc(v))
-        print(f"current: {current_vertice}")
+        print(f"current: {current_vertice}") #PRINT ESTILO GABRIEL
+
         if current_vertice["vertice"] == finalVertice:
-            print(current_vertice["vertice"])
+            # O destino foi alcançado, pare o loop
             break
-        else:
-            openingList.remove(current_vertice)
-            closedList.append(current_vertice)
-            for neighbor, dist in graph[current_vertice["vertice"]]:
-                print(f"visinho: {neighbor}, dist: {dist}")
-                neighborDict = {
-                    "father": current_vertice["vertice"],
-                    "vertice": neighbor,
-                    "g": current_vertice["g"] + dist,
-                    "h": euclidean_dist(neighbor, finalVertice),
-                }
-                openingList.append(neighborDict)
-    #           if (vizinho tem valor g menor que o atual e está na lista fechada):
-    #               substitua o vizinho pelo novo valor g inferior
-    #               o nó atual agora é o pai do vizinho
-    #           else if (o valor atual de g é menor e este vizinho está na lista aberta):
-    #               substitua o vizinho pelo novo valor g inferior
-    #               mude o pai do vizinho para o nosso nó atual
-    #           else if este vizinho is not in ambas as listas:
-    #               adicione-o à lista aberta e defina seu g
+
+        openingList.remove(current_vertice)
+        closedList.append(current_vertice)
+
+        for neighbor, dist in graph[current_vertice["vertice"]]:
+            neighborDict = {
+                "father": current_vertice["vertice"],
+                "vertice": neighbor,
+                "g": current_vertice["g"] + dist,
+                "h": 0,
+            }
+
+            if heuristica == "euclidiana":
+                neighborDict["h"] = euclidean_dist(neighbor, finalVertice)
+            elif heuristica == "haversine":
+                neighborDict["h"] = haversine_dist(neighbor, finalVertice)
+
+            #COMENTE ISSO PARA VER SEM AS MINHAS IMPLEMENTAÇÕES (ÍCARO)
+            
+            # ATUALIZAÇÃO DE CAMINHOS E EFICIENCIA
+            if neighborDict["vertice"] in [v["vertice"] for v in openingList]:
+                for v in openingList:
+                    if v["vertice"] == neighborDict["vertice"]:
+                        if neighborDict["g"] < v["g"]:
+                            v["g"] = neighborDict["g"]
+                            v["father"] = current_vertice["vertice"]
+            elif neighborDict["vertice"] in [v["vertice"] for v in closedList]:
+                for v in closedList:
+                    if v["vertice"] == neighborDict["vertice"]:
+                        if neighborDict["g"] < v["g"]:
+                            v["g"] = neighborDict["g"]
+                            v["father"] = current_vertice["vertice"]
+            else:
+                openingList.append(neighborDict) #DEIDENTE ESSA PARTE SE COMENTAR
+
+        #PRINT ESTILO ICARO (to cansado de ingles)
+        # print(f"Expansão {contador_expansao}: Vertice={current_vertice['vertice']}, f={f_calc(current_vertice)}, g={current_vertice['g']}, h={current_vertice['h']}")
+
+    #ENCONTRAR CAMINHO
+    if current_vertice["vertice"] == finalVertice:
+        path = []
+        current = current_vertice
+        while current is not None:
+            path.append(current["vertice"])
+            # print(path)
+            current = [v for v in closedList if v["vertice"] == current["father"]][0] if current["father"] is not None else None
+        # print(path)
+        # print(path.reverse()) nao funciona?
+        tempo_final = time.time()
+        print("Tempo de execução:", tempo_final - tempo_inicial)
+        print("Caminho encontrado:", path)
+    else:
+        print("Caminho não encontrado.")
+
+
 
 def main():
-    import time
-    nome_arquivo = './src/allUSA_roads.gr'
-    print("origem atual: 206198")
-    print("destino atual: 206207")
-    choose = input("alterar origem e destino? S/N? -> ")
+    nome_arquivo_gr = './USA-road-d.NY.gr'  # Arquivo de distâncias
+    print("origem atual: 300")
+    print("destino atual: 400")
+    choose = input("Alterar origem e destino? S/N? -> ")
 
-    origem = 206198
-    destino = 206207
+    origem = 300
+    destino = 400
 
     if choose == 'S':
         origem = int(input("Origem: "))
         destino = int(input("Destino: "))
-    inicio = time.time()
-    grafo, edges = ler_grafo(nome_arquivo)
-    fim = time.time()
-    print(f'tempo para ler arquivo: {inicio - fim}')
+    
     while True:
-        print("1 - A*")
-        print("2 - Dijkstra")
+        print("1 - A* com Heurística Euclidiana")
+        print("2 - A* com Heurística de Haversine")
+        print("3 - Dijkstra")
         print("0 - Sair")
         
         entrada = input("Selecione o Algoritmo -> ")
 
         if entrada == '1':
-            a_star_search(origem, destino, grafo)
+            grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
+            a_star_search(origem, destino, grafo_distancias, "euclidiana")
 
         elif entrada == '2':
-            
-            distancias, anteriores = dijkstra_comprehension(grafo, origem)
+            grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
+            a_star_search(origem, destino, grafo_distancias,"haversine")
+
+        elif entrada == '3':
+            distancias, anteriores = dijkstra_comprehension(grafo_distancias, origem)
             distancia_minima = distancias[destino]
             caminho = encontrar_caminho(anteriores, origem, destino)
             print(f'Distância mínima de {origem} para {destino}: {distancia_minima}')
@@ -208,8 +276,5 @@ def main():
         else:
             print("Opção Inválida!")
 
-    # funcao.desenhar_grafo(edges[0:500])
-
 if __name__ == "__main__":
     main()
-
