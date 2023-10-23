@@ -46,6 +46,7 @@ def encontrar_caminho(anteriores, origem, destino): #CONCLUÍDA MAS NÃO VERIFIC
     return caminho
 
 def dijkstra_comprehension(grafo, origem): #FUNCIONAL CONCLUÍDA ( ÍCARO )
+    inicio = time.time()
     #definir todos os nós para infinito
     distancias = {no: float('inf') for no in grafo} 
     #definir todos os nós anteriores como nulo
@@ -72,8 +73,8 @@ def dijkstra_comprehension(grafo, origem): #FUNCIONAL CONCLUÍDA ( ÍCARO )
                 distancias[vizinho] = distancia_total
                 anteriores[vizinho] = no_atual
                 fila.append((distancia_total, vizinho))
-
-    return distancias, anteriores
+    final = time.time()
+    return distancias, anteriores, (final - inicio)
 
 #Função que calcula a linha reta entre duas coordenadas (terra plana), ou seja,
 #calcula a distância euclideana entre dois pontos.
@@ -228,10 +229,13 @@ def a_star_search(initialVertice, finalVertice, graph, heuristica):
         # print(path)
         # print(path.reverse()) nao funciona?
         tempo_final = time.time()
-        print("Tempo de execução:", tempo_final - tempo_inicial)
+        tempo = tempo_final - tempo_inicial
+        print("Tempo de execução:", tempo)
         print("Caminho encontrado:", path)
     else:
         print("Caminho não encontrado.")
+    
+    return path, tempo, contador_expansao, neighborDict["g"]
 
 def main():
     nome_arquivo_gr = './USA-road-d.NY.gr'  # Arquivo de distâncias
@@ -242,6 +246,39 @@ def main():
     origem = 300
     destino = 400
 
+    relatorio = {
+        "Dijkstra": {
+            "Caminho": None,
+            "Distancia": None,
+            "Fator de Ramificação Médio": None,
+            "Tempo": None,
+        },
+        "A* HAVERSINI": {
+            "Caminho": None,
+            "Distancia": None,
+            "Fator de Ramificação Médio": None,
+            "Tempo": None,
+        },
+        "A* EUCLIDIANO": {
+            "Caminho": None,
+            "Distancia": None,
+            "Fator de Ramificação Médio": None,
+            "Tempo": None,
+        },
+        "BFS": {
+            "Caminho": None,
+            "Distancia": None,
+            "Fator de Ramificação Médio": None,
+            "Tempo": None,
+        },
+        "DFS": {
+            "Caminho": None,
+            "Distancia": None,
+            "Fator de Ramificação Médio": None,
+            "Tempo": None,
+        }
+    }
+
     if choose == 'S':
         origem = int(input("Origem: "))
         destino = int(input("Destino: "))
@@ -250,25 +287,45 @@ def main():
         print("1 - A* com Heurística Euclidiana")
         print("2 - A* com Heurística de Haversine")
         print("3 - Dijkstra")
+        print("4 - Relatório")
         print("0 - Sair")
         
         entrada = input("Selecione o Algoritmo -> ")
 
         if entrada == '1':
             grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
-            a_star_search(origem, destino, grafo_distancias, "euclidiana")
+            caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias, "euclidiana")
+            relatorio["A* EUCLIDIANO"]["Caminho"] = caminho
+            relatorio["A* EUCLIDIANO"]["Distancia"] = distancia
+            relatorio["A* EUCLIDIANO"]["Fator de Ramificação Médio"] = nos_expandidos
+            relatorio["A* EUCLIDIANO"]["Tempo"] = tempo
 
         elif entrada == '2':
             grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
-            a_star_search(origem, destino, grafo_distancias,"haversine")
+            caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias,"haversine")
+            relatorio["A* HAVERSINI"]["Caminho"] = caminho
+            relatorio["A* HAVERSINI"]["Distancia"] = distancia
+            relatorio["A* HAVERSINI"]["Fator de Ramificação Médio"] = nos_expandidos
+            relatorio["A* HAVERSINI"]["Tempo"] = tempo
 
         elif entrada == '3':
             grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
-            distancias, anteriores = dijkstra_comprehension(grafo_distancias, origem)
+            distancias, anteriores, tempo = dijkstra_comprehension(grafo_distancias, origem)
             distancia_minima = distancias[destino]
             caminho = encontrar_caminho(anteriores, origem, destino)
-            print(f'Distância mínima de {origem} para {destino}: {distancia_minima}')
-            print(f'Caminho: {caminho}')
+            print("caminho encontrado: ", caminho)
+            print("distancia minima: ", distancia_minima)
+            relatorio["Dijkstra"]["Caminho"] = caminho
+            relatorio["Dijkstra"]["Distancia"] = distancia_minima
+            relatorio["Dijkstra"]["Tempo"] = tempo
+
+        elif entrada == "4":
+            print("\nRELATÓRIO\n")
+            for i, j in relatorio.items():
+                print(f"{i}:")
+                for cateogory, item in j.items():
+                    print(f"{cateogory} - {item}")
+                print("\n")
 
         elif entrada == '0':
             break
