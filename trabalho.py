@@ -233,8 +233,6 @@ def a_star_search(initialVertice, finalVertice, graph, heuristica):
     else:
         print("Caminho não encontrado.")
 
-
-
 def main():
     nome_arquivo_gr = './USA-road-d.NY.gr'  # Arquivo de distâncias
     print("origem atual: 300")
@@ -265,6 +263,7 @@ def main():
             a_star_search(origem, destino, grafo_distancias,"haversine")
 
         elif entrada == '3':
+            grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
             distancias, anteriores = dijkstra_comprehension(grafo_distancias, origem)
             distancia_minima = distancias[destino]
             caminho = encontrar_caminho(anteriores, origem, destino)
