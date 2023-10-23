@@ -1,24 +1,16 @@
-import exemplo_gerar_grafo as funcao
 import time
 import math
-import time
 
-''' Todo: Qgiz, Oeste Americano, Heuristica Haversine, A*, DFS, Bi-Direcional '''
+''' Todo: Qgiz, Oeste Americano (Teste), A* Bi-Direcional, BFS, DFS '''
 
 ''' FUNÇÃO ler_grafo
-    GRAFO -> { 1: [(2, 803), (12, 842), (1363, 2428)], 2: [(n1, ), (n2, ?), (nx, ?)], ... }
+    GRAFO -> { 1: [(2, 803), (12, 842), (1363, 2428)], 2: [(n1, d1 ), (n2, d2) (nx, dx)], ... }
     dict key = origem 
     grafo[key] = [(destino_1, peso_1), (destino_2, peso_2), ...]
 '''
 
-''' FUNÇÃO ler_grafo
-    ARESTAS -> [('1', '2', '803'), ('1', '12', 842'), ('1', '1363', '2428'), ...]
-    Lista de tuplas com o formato (origem, destino, peso) para todas as estradas
-'''
-
 def ler_grafo_distancia(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINIDO ( ÍCARO )
     grafo = {}
-    arestas = []
     with open(nome_arquivo, 'r') as arquivo:
         linhas = arquivo.readlines()
         for linha in linhas:
@@ -30,13 +22,10 @@ def ler_grafo_distancia(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINI
                 if origem not in grafo:
                     grafo[origem] = []
                 grafo[origem].append((destino, distancia))
-                # arestas.append((str(origem), str(destino), distancia))
-    # print(arestas) #teste
-    # print(grafo) #teste
     return grafo
 
 #FUNÇÃO QUE MAPEIA O CAMINHO TRAÇADO
-def encontrar_caminho(anteriores, origem, destino): #CONCLUÍDA MAS NÃO VERIFICADA ( ÍCARO )
+def encontrar_caminho(anteriores, destino): #CONCLUÍDA MAS NÃO VERIFICADA ( ÍCARO )
     caminho = []
     no_atual = destino
     while no_atual is not None:
@@ -93,11 +82,17 @@ def euclidean_dist(v1, v2): #Função concluida (Carlos Gabriel)
                 parts = line.strip().split()
                 lat2 = int(parts[2])
                 long2 = int(parts[3])
+
+    # lat1, long1 = latitude e longitude do vertice de origem
+    # lat2, long2 = latitude e longitude do vertice de destino
+
+    #DIVISÃO POR 1 MILHAO
     lat1 = lat1 / 1e6
     lat2 = lat2 / 1e6
     long1 = long1 / 1e6
     long2 = long2 / 1e6
     
+    #distancia = raiz(diferenças da latitude ao quadrado + diferenças da longitude ao quadrado)
     d = (((lat2 - lat1) ** 2) + ((long2 - long1) ** 2)) ** (1/2)
     return d
 
@@ -117,12 +112,16 @@ def haversine_dist(v1, v2): #Função concluida (João Ícaro)
                 lat2 = int(parts[2])
                 long2 = int(parts[3])
 
+    # lat1, long1 = latitude e longitude do vertice de origem
+    # lat2, long2 = latitude e longitude do vertice de destino
+
+    #DIVISÃO POR 1 MILHAO
     lat1 = lat1 / 1e6
     lat2 = lat2 / 1e6
     long1 = long1 / 1e6
     long2 = long2 / 1e6
     
-    raio = 6371000
+    raio = 6371000 #raio da terra
 
     #converter graus decimais em radianos
     lat1, long1, lat2, long2 = map(math.radians, [lat1, long1, lat2, long2])
@@ -132,7 +131,10 @@ def haversine_dist(v1, v2): #Função concluida (João Ícaro)
     dlon = long2 - long1
 
     # Fórmula de Haversine
+    # a = seno da distancia das latitudes/2 elevado ao quadrado
+    # somado com o cosseno de lat1 * cosseno de lat2 * seno da longitude/2 ao quadrado
     a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
+    # 2 multiplicado por arco da tangente do raiz de a pela raiz de 1 - a
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
     # Distância em metros
@@ -142,9 +144,9 @@ def haversine_dist(v1, v2): #Função concluida (João Ícaro)
 
 def f_calc(vertice): #Função concluida (Carlos Gabriel)
     # f(n)=g(n)+h(n),
-    # f(n) = custo total estimado do caminho através do nó n
     # g(n) = custo até agora para chegar ao nó n
     # h(n) = custo estimado de n até a meta. Esta é a parte heurística da função de custo, portanto é como uma suposição.
+    # f(n) = custo total estimado do caminho através do nó n
     return vertice["g"] + vertice["h"]
 
 def a_star_search(initialVertice, finalVertice, graph, heuristica):
