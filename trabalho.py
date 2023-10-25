@@ -44,17 +44,17 @@ def dijkstra_comprehension(grafo, origem): #FUNCIONAL CONCLUÍDA ( ÍCARO )
     distancias[origem] = 0
     #a fila vai de 0 até a origem (0)
     fila = [(0, origem)]
-
     #enquanto a fila nao estiver vazia, iremos extrair o nó com menor distância
     while fila:
         #ordene-a
         fila.sort()
+        # print("fila ordenada: ", fila)
         
         distancia_atual, no_atual = fila.pop(0)
         
         if distancia_atual > distancias[no_atual]:
             continue
-
+        
         for vizinho, distancia in grafo[no_atual]:
             distancia_total = distancia_atual + distancia
 
@@ -314,7 +314,7 @@ def main():
             grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
             distancias, anteriores, tempo = dijkstra_comprehension(grafo_distancias, origem)
             distancia_minima = distancias[destino]
-            caminho = encontrar_caminho(anteriores, origem, destino)
+            caminho = encontrar_caminho(anteriores, destino)
             print("caminho encontrado: ", caminho)
             print("distancia minima: ", distancia_minima)
             relatorio["Dijkstra"]["Caminho"] = caminho
