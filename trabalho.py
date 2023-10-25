@@ -212,6 +212,7 @@ def main():
     while True:
         print("1 - A*")
         print("2 - Dijkstra")
+        print("3 - BFS")
         print("0 - Sair")
         
         entrada = input("Selecione o Algoritmo -> ")
@@ -226,13 +227,20 @@ def main():
             caminho = encontrar_caminho(anteriores, origem, destino)
             print(f'Distância mínima de {origem} para {destino}: {distancia_minima}')
             print(f'Caminho: {caminho}')
-
+        elif entrada == '3':
+            distancia, ramos, time, no = BFS_search(origem,destino,grafo)
+            print("\ndistancia: ",distancia)
+            print("\nfator de ramifaicacao= ",ramos)
+            print("\ntempo deceorrido =", time)
+            print("\nqtd de nós expandidos:", no)
+        elif entrada == "4":
+            #DFS_search(origem, destino, grafo,)
+            pass
         elif entrada == '0':
             break
         else:
             print("Opção Inválida!")
 
-    # funcao.desenhar_grafo(edges[0:500])
 
 if __name__ == "__main__":
     main()
