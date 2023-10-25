@@ -1,5 +1,5 @@
-import exemplo_gerar_grafo as funcao
 import time
+import math
 
 ''' Todo: Qgiz, Oeste Americano, Heuristica Haversine, A*, DFS, Bi-Direcional '''
 
@@ -138,6 +138,61 @@ def a_star_search(initialVertice, finalVertice, graph):
     #               mude o pai do vizinho para o nosso nó atual
     #           else if este vizinho is not in ambas as listas:
     #               adicione-o à lista aberta e defina seu g
+
+def BFS_search(initialVertice, finalVertice, graph):
+    
+    tempo_inicial = time.time()                    
+    no_expands=0                                   #nós expandidos
+    edges_expands=0                                #arestas geradas
+    caminho = []                                   #lista com o caminho do no inicial ao no final
+    fim =0                                         #variavel pra cheacr fim da repetição
+    queue = []                                     #fila
+    dados = {}                                     #Dicionario na forma {id: [pai, distancia de arestas, distancia em KM, cor]}
+    for v in graph:                                #inicia os vetores
+        dados[v]=[-1,0,0,"W"]
+    dados[initialVertice] = [-1,0,0,'G']
+    
+    
+    queue.append(initialVertice)                   #coloca o primeiro vertice na fila
+    while(len(queue) > 0):                         #BFS
+        id = queue[0]
+        no_expands = no_expands+1
+        for v in graph[id]:
+            edges_expands = edges_expands+1
+            new_id = v[0]
+            if dados[new_id][3] == 'W':
+                dados[new_id][0] = id
+                dados[new_id][1] = dados[id][1]+1
+                dados[new_id][2] = dados[id][2] + v[1]
+                dados[new_id][3] = 'G'
+                queue.append(new_id)
+            if new_id == finalVertice:
+                print("Vertice encontrado!")
+                id = new_id
+                queue.clear()
+                fim = 1
+            if(fim):
+                break
+        if(fim):
+            break
+        queue.remove(id)
+        dados[id][3]='B'
+        
+    while(dados[id][1]>0):
+        caminho.append(id)  
+        id=dados[id][0]
+    caminho.append(id)
+        
+    while(len(caminho) != 0):
+        print(" -> ", caminho[-1], end = "")
+        caminho.remove(caminho[-1])
+            
+            
+    tempo_final = time.time()    
+    tempo = tempo_final - tempo_inicial
+    ramificacao = edges_expands//no_expands
+    
+    return dados[new_id][2], ramificacao, tempo, no_expands
 
 def main():
     nome_arquivo = 'USA-road-d.NY.gr'
