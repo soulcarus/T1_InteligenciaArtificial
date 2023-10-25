@@ -142,6 +142,29 @@ def haversine_dist(v1, v2): #Função concluida (João Ícaro)
 
     return distancia
 
+def manhattan_dist(v1, v2): #Função concluida (Carlos Gabriel)
+    if v1 == v2:
+        return 0.00
+    lat1, long1, lat2, long2 = 0, 0, 0, 0
+    with open('USA-road-d.NY.co', 'r') as file:
+        lines = file.readlines()
+        for line in lines:
+            if line.startswith(f"v {v1}"):
+                parts = line.strip().split()
+                lat1 = int(parts[2])
+                long1 = int(parts[3])
+            if line.startswith(f"v {v2}"):
+                parts = line.strip().split()
+                lat2 = int(parts[2])
+                long2 = int(parts[3])
+    lat1 = lat1 / 1e6
+    lat2 = lat2 / 1e6
+    long1 = long1 / 1e6
+    long2 = long2 / 1e6
+    distx = abs(lat1 - lat2)
+    disty = abs(long1 - long2)
+    return 1 * (distx + disty)
+
 def f_calc(vertice): #Função concluida (Carlos Gabriel)
     # f(n)=g(n)+h(n),
     # g(n) = custo até agora para chegar ao nó n
@@ -165,6 +188,13 @@ def a_star_search(initialVertice, finalVertice, graph, heuristica):
             "vertice": initialVertice,
             "g": 0,
             "h": haversine_dist(initialVertice, finalVertice),
+        }
+    elif heuristica == "manhattan":
+        initialVerticeDict = {
+            "father": None,
+            "vertice": initialVertice,
+            "g": 0,
+            "h": manhattan_dist(initialVertice, finalVertice),
         }
     else:
         print("Heurística inválida.")
@@ -198,6 +228,9 @@ def a_star_search(initialVertice, finalVertice, graph, heuristica):
                 neighborDict["h"] = euclidean_dist(neighbor, finalVertice)
             elif heuristica == "haversine":
                 neighborDict["h"] = haversine_dist(neighbor, finalVertice)
+            elif heuristica == "manhattan":
+                neighborDict["h"] = manhattan_dist(neighbor, finalVertice)
+
 
             #COMENTE ISSO PARA VER SEM AS MINHAS IMPLEMENTAÇÕES (ÍCARO)
             
@@ -267,6 +300,12 @@ def main():
             "Fator de Ramificação Médio": None,
             "Tempo": None,
         },
+        "A* MANHATTAN": {
+            "Caminho": None,
+            "Distancia": None,
+            "Fator de Ramificação Médio": None,
+            "Tempo": None,
+        },
         "BFS": {
             "Caminho": None,
             "Distancia": None,
@@ -288,8 +327,9 @@ def main():
     while True:
         print("1 - A* com Heurística Euclidiana")
         print("2 - A* com Heurística de Haversine")
-        print("3 - Dijkstra")
-        print("4 - Relatório")
+        print("3 - A* com Heurística de Manhattan")
+        print("4 - Dijkstra")
+        print("5 - Relatório")
         print("0 - Sair")
         
         entrada = input("Selecione o Algoritmo -> ")
@@ -309,8 +349,14 @@ def main():
             relatorio["A* HAVERSINI"]["Distancia"] = distancia
             relatorio["A* HAVERSINI"]["Fator de Ramificação Médio"] = nos_expandidos
             relatorio["A* HAVERSINI"]["Tempo"] = tempo
-
         elif entrada == '3':
+            grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
+            caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias,"manhattan")
+            relatorio["A* MANHATTAN"]["Caminho"] = caminho
+            relatorio["A* MANHATTAN"]["Distancia"] = distancia
+            relatorio["A* MANHATTAN"]["Fator de Ramificação Médio"] = nos_expandidos
+            relatorio["A* MANHATTAN"]["Tempo"] = tempo
+        elif entrada == '4':
             grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
             distancias, anteriores, tempo = dijkstra_comprehension(grafo_distancias, origem)
             distancia_minima = distancias[destino]
@@ -321,7 +367,7 @@ def main():
             relatorio["Dijkstra"]["Distancia"] = distancia_minima
             relatorio["Dijkstra"]["Tempo"] = tempo
 
-        elif entrada == "4":
+        elif entrada == "5":
             print("\nRELATÓRIO\n")
             for i, j in relatorio.items():
                 print(f"{i}:")
