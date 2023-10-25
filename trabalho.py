@@ -1,5 +1,7 @@
 import time
 import math
+from qgis.core import *
+import qgis.utils
 
 ''' Todo: Qgiz, Oeste Americano (Teste), A* Bi-Direcional, BFS, DFS '''
 
@@ -8,6 +10,9 @@ import math
     dict key = origem 
     grafo[key] = [(destino_1, peso_1), (destino_2, peso_2), ...]
 '''
+
+def initialize_gqiz():
+    pass
 
 def ler_grafo_distancia(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINIDO ( ÍCARO )
     grafo = {}
@@ -24,8 +29,23 @@ def ler_grafo_distancia(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINI
                 grafo[origem].append((destino, distancia))
     return grafo
 
+def ler_grafo_coordenadas(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINIDO ( ÍCARO )
+    grafo = {}
+    with open(nome_arquivo, 'r') as arquivo:
+        linhas = arquivo.readlines()
+        for linha in linhas:
+            if linha.startswith('v'): #if linha[0] == 'v'
+                partes = linha.strip().split()
+                origem = int(partes[1])
+                latitude = int(partes[2])
+                longitude = int(partes[3])
+                if origem not in grafo:
+                    grafo[origem] = []
+                grafo[origem].append((latitude, longitude))
+    return grafo
+
 #FUNÇÃO QUE MAPEIA O CAMINHO TRAÇADO
-def encontrar_caminho(anteriores, destino): #CONCLUÍDA MAS NÃO VERIFICADA ( ÍCARO )
+def encontrar_caminho(anteriores, destino): #CONCLUÍDA ( ÍCARO )
     caminho = []
     no_atual = destino
     while no_atual is not None:
@@ -67,21 +87,20 @@ def dijkstra_comprehension(grafo, origem): #FUNCIONAL CONCLUÍDA ( ÍCARO )
 
 #Função que calcula a linha reta entre duas coordenadas (terra plana), ou seja,
 #calcula a distância euclideana entre dois pontos.
-def euclidean_dist(v1, v2): #Função concluida (Carlos Gabriel)
+def euclidean_dist(v1, v2, graph_co): #Função concluida (Carlos Gabriel)
     if v1 == v2:
         return 0.00
     lat1, long1, lat2, long2 = 0, 0, 0, 0
-    with open('USA-road-d.NY.co', 'r') as file:
-        lines = file.readlines()
-        for line in lines:
-            if line.startswith(f"v {v1}"):
-                parts = line.strip().split()
-                lat1 = int(parts[2])
-                long1 = int(parts[3])
-            if line.startswith(f"v {v2}"):
-                parts = line.strip().split()
-                lat2 = int(parts[2])
-                long2 = int(parts[3])
+    for vertice, atributos in graph_co.items():
+        if vertice == v1:
+            # print(vertice, atributos)
+            lat1 = atributos[0][0]
+            long1 = atributos[0][1]
+        if vertice == v2:
+            lat2 = atributos[0][0]
+            long2 = atributos[0][1]
+        if lat1 and long1 and lat2 and long2:
+            break
 
     # lat1, long1 = latitude e longitude do vertice de origem
     # lat2, long2 = latitude e longitude do vertice de destino
@@ -96,21 +115,20 @@ def euclidean_dist(v1, v2): #Função concluida (Carlos Gabriel)
     d = (((lat2 - lat1) ** 2) + ((long2 - long1) ** 2)) ** (1/2)
     return d
 
-def haversine_dist(v1, v2): #Função concluida (João Ícaro)
+def haversine_dist(v1, v2, graph_co): #Função concluida (João Ícaro)
     if v1 == v2:
         return 0.00
     lat1, long1, lat2, long2 = 0, 0, 0, 0
-    with open('USA-road-d.NY.co', 'r') as file:
-        lines = file.readlines()
-        for line in lines:
-            if line.startswith(f"v {v1}"):
-                parts = line.strip().split()
-                lat1 = int(parts[2])
-                long1 = int(parts[3])
-            if line.startswith(f"v {v2}"):
-                parts = line.strip().split()
-                lat2 = int(parts[2])
-                long2 = int(parts[3])
+    for vertice, atributos in graph_co.items():
+        if vertice == v1:
+            # print(vertice, atributos)
+            lat1 = atributos[0][0]
+            long1 = atributos[0][1]
+        if vertice == v2:
+            lat2 = atributos[0][0]
+            long2 = atributos[0][1]
+        if lat1 and long1 and lat2 and long2:
+            break
 
     # lat1, long1 = latitude e longitude do vertice de origem
     # lat2, long2 = latitude e longitude do vertice de destino
@@ -142,21 +160,21 @@ def haversine_dist(v1, v2): #Função concluida (João Ícaro)
 
     return distancia
 
-def manhattan_dist(v1, v2): #Função concluida (Carlos Gabriel)
+def manhattan_dist(v1, v2, graph_co): #Função concluida (Carlos Gabriel)
     if v1 == v2:
         return 0.00
     lat1, long1, lat2, long2 = 0, 0, 0, 0
-    with open('USA-road-d.NY.co', 'r') as file:
-        lines = file.readlines()
-        for line in lines:
-            if line.startswith(f"v {v1}"):
-                parts = line.strip().split()
-                lat1 = int(parts[2])
-                long1 = int(parts[3])
-            if line.startswith(f"v {v2}"):
-                parts = line.strip().split()
-                lat2 = int(parts[2])
-                long2 = int(parts[3])
+    for vertice, atributos in graph_co.items():
+        if vertice == v1:
+            # print(vertice, atributos)
+            lat1 = atributos[0][0]
+            long1 = atributos[0][1]
+        if vertice == v2:
+            lat2 = atributos[0][0]
+            long2 = atributos[0][1]
+        if lat1 and long1 and lat2 and long2:
+            break
+
     lat1 = lat1 / 1e6
     lat2 = lat2 / 1e6
     long1 = long1 / 1e6
@@ -172,7 +190,7 @@ def f_calc(vertice): #Função concluida (Carlos Gabriel)
     # f(n) = custo total estimado do caminho através do nó n
     return vertice["g"] + vertice["h"]
 
-def a_star_search(initialVertice, finalVertice, graph, heuristica):
+def a_star_search(initialVertice, finalVertice, graph, heuristica, graph_co):
 
     tempo_inicial = time.time()
     if heuristica == "euclidiana":
@@ -180,21 +198,21 @@ def a_star_search(initialVertice, finalVertice, graph, heuristica):
             "father": None,
             "vertice": initialVertice,
             "g": 0,
-            "h": euclidean_dist(initialVertice, finalVertice),
+            "h": euclidean_dist(initialVertice, finalVertice, graph_co),
         }
     elif heuristica == "haversine":
         initialVerticeDict = {
             "father": None,
             "vertice": initialVertice,
             "g": 0,
-            "h": haversine_dist(initialVertice, finalVertice),
+            "h": haversine_dist(initialVertice, finalVertice, graph_co),
         }
     elif heuristica == "manhattan":
         initialVerticeDict = {
             "father": None,
             "vertice": initialVertice,
             "g": 0,
-            "h": manhattan_dist(initialVertice, finalVertice),
+            "h": manhattan_dist(initialVertice, finalVertice, graph_co),
         }
     else:
         print("Heurística inválida.")
@@ -207,7 +225,7 @@ def a_star_search(initialVertice, finalVertice, graph, heuristica):
     while openingList:
         contador_expansao += 1
         current_vertice = min(openingList, key=lambda v: f_calc(v))
-        print(f"current: {current_vertice}") #PRINT ESTILO GABRIEL
+        # print(f"current: {current_vertice}") #PRINT ESTILO GABRIEL
 
         if current_vertice["vertice"] == finalVertice:
             # O destino foi alcançado, pare o loop
@@ -225,15 +243,14 @@ def a_star_search(initialVertice, finalVertice, graph, heuristica):
             }
 
             if heuristica == "euclidiana":
-                neighborDict["h"] = euclidean_dist(neighbor, finalVertice)
+                neighborDict["h"] = euclidean_dist(neighbor, finalVertice, graph_co)
             elif heuristica == "haversine":
-                neighborDict["h"] = haversine_dist(neighbor, finalVertice)
+                neighborDict["h"] = haversine_dist(neighbor, finalVertice, graph_co)
             elif heuristica == "manhattan":
-                neighborDict["h"] = manhattan_dist(neighbor, finalVertice)
-
+                neighborDict["h"] = manhattan_dist(neighbor, finalVertice, graph_co)
 
             #COMENTE ISSO PARA VER SEM AS MINHAS IMPLEMENTAÇÕES (ÍCARO)
-            
+
             # ATUALIZAÇÃO DE CAMINHOS E EFICIENCIA
             if neighborDict["vertice"] in [v["vertice"] for v in openingList]:
                 for v in openingList:
@@ -274,6 +291,7 @@ def a_star_search(initialVertice, finalVertice, graph, heuristica):
 
 def main():
     nome_arquivo_gr = './USA-road-d.NY.gr'  # Arquivo de distâncias
+    nome_arquivo_co = './USA-road-d.NY.co'
     print("origem atual: 300")
     print("destino atual: 400")
     choose = input("Alterar origem e destino? S/N? -> ")
@@ -336,7 +354,8 @@ def main():
 
         if entrada == '1':
             grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
-            caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias, "euclidiana")
+            grafo_coordenadas = ler_grafo_coordenadas(nome_arquivo_co)
+            caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias, "euclidiana", grafo_coordenadas)
             relatorio["A* EUCLIDIANO"]["Caminho"] = caminho
             relatorio["A* EUCLIDIANO"]["Distancia"] = distancia
             relatorio["A* EUCLIDIANO"]["Fator de Ramificação Médio"] = nos_expandidos
@@ -344,14 +363,16 @@ def main():
 
         elif entrada == '2':
             grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
-            caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias,"haversine")
+            grafo_coordenadas = ler_grafo_coordenadas(nome_arquivo_co)
+            caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias,"haversine", grafo_coordenadas)
             relatorio["A* HAVERSINI"]["Caminho"] = caminho
             relatorio["A* HAVERSINI"]["Distancia"] = distancia
             relatorio["A* HAVERSINI"]["Fator de Ramificação Médio"] = nos_expandidos
             relatorio["A* HAVERSINI"]["Tempo"] = tempo
         elif entrada == '3':
             grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
-            caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias,"manhattan")
+            grafo_coordenadas = ler_grafo_coordenadas(nome_arquivo_co)
+            caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias,"manhattan", grafo_coordenadas)
             relatorio["A* MANHATTAN"]["Caminho"] = caminho
             relatorio["A* MANHATTAN"]["Distancia"] = distancia
             relatorio["A* MANHATTAN"]["Fator de Ramificação Médio"] = nos_expandidos
