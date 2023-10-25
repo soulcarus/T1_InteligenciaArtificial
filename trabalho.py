@@ -33,6 +33,23 @@ def ler_grafo(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINIDO ( ÍCAR
     # print(grafo) #teste
     return grafo, arestas
 
+def get_vertice(longitude, latitude, file_name):            #retorna um vertice referente as coordenadas passadas
+    vertice = 0
+    with open(file_name, 'r') as file:
+        lines = file.readlines()
+        for line in lines:
+            if line.startswith('v'):
+                parts = line.strip().split()
+                long = int(parts[2])
+                lat = int(parts[3])
+                if (longitude == long and latitude == lat):
+                    vertice = int(parts[1])
+    if (vertice):                                           #checa se o vertice foi alterado(se foi encontrado) 
+        return vertice
+    else:
+        print("Vertice não encontrado!!")
+        pass
+
 #FUNÇÃO QUE MAPEIA O CAMINHO TRAÇADO
 def encontrar_caminho(anteriores, origem, destino): #CONCLUÍDA MAS NÃO VERIFICADA ( ÍCARO )
     caminho = []
@@ -139,22 +156,42 @@ def a_star_search(initialVertice, finalVertice, graph):
     #           else if este vizinho is not in ambas as listas:
     #               adicione-o à lista aberta e defina seu g
 
-def BFS_search(initialVertice, finalVertice, graph):
+def BFS_search(long1, lat1, long2, lat2, file_name, graph):
     
-    tempo_inicial = time.time()                    
-    no_expands=0                                   #nós expandidos
-    edges_expands=0                                #arestas geradas
-    caminho = []                                   #lista com o caminho do no inicial ao no final
-    fim =0                                         #variavel pra cheacr fim da repetição
-    queue = []                                     #fila
-    dados = {}                                     #Dicionario na forma {id: [pai, distancia de arestas, distancia em KM, cor]}
-    for v in graph:                                #inicia os vetores
+    initialVertice = get_vertice(long1, lat1, file_name)
+    finalVertice = get_vertice(long2, lat2, file_name)
+    
+    if not(initialVertice):
+        print("Vertice 1 não encontrado!!")
+        return 0,0,0,0
+    elif not(finalVertice):
+        print("Vertice 2 não encontrado!!")
+        return 0,0,0,0
+    
+    tempo_inicial = time.time()
+    #nós expandidos
+    no_expands=0
+    #arestas geradas
+    edges_expands=0
+    #lista com o caminho do no inicial ao no final
+    caminho = []
+    #variavel pra cheacr fim da repetição
+    fim =0
+    
+    
+    #fila
+    queue = []
+    #Dicionario na forma {id: [pai, distancia de arestas, distancia em KM, cor]}
+    dados = {}
+    #inicia os vetores
+    for v in graph:
         dados[v]=[-1,0,0,"W"]
     dados[initialVertice] = [-1,0,0,'G']
     
+    #coloca o primeiro vertice na fila
+    queue.append(initialVertice)
     
-    queue.append(initialVertice)                   #coloca o primeiro vertice na fila
-    while(len(queue) > 0):                         #BFS
+    while(len(queue) > 0):
         id = queue[0]
         no_expands = no_expands+1
         for v in graph[id]:
@@ -196,6 +233,7 @@ def BFS_search(initialVertice, finalVertice, graph):
 
 def main():
     nome_arquivo = 'USA-road-d.NY.gr'
+    nome_arquivo_co = 'USA-road-d.NY.co'
     print("origem atual: 206198")
     print("destino atual: 206207")
     choose = input("alterar origem e destino? S/N? -> ")
@@ -228,7 +266,7 @@ def main():
             print(f'Distância mínima de {origem} para {destino}: {distancia_minima}')
             print(f'Caminho: {caminho}')
         elif entrada == '3':
-            distancia, ramos, time, no = BFS_search(origem,destino,grafo)
+            distancia, ramos, time, no = BFS_search(-73795916,40737894,-73795813,40737185,nome_arquivo_co,grafo)
             print("\ndistancia: ",distancia)
             print("\nfator de ramifaicacao= ",ramos)
             print("\ntempo deceorrido =", time)

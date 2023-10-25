@@ -1,6 +1,34 @@
 import time
 
-def BFS_search(initialVertice, finalVertice, graph):
+def get_vertice(longitude, latitude, file_name):
+    vertice = 0
+    with open(file_name, 'r') as file:
+        lines = file.readlines()
+        for line in lines:
+            if line.startswith('v'):
+                parts = line.strip().split()
+                long = int(parts[2])
+                lat = int(parts[3])
+                if (longitude == long and latitude == lat):
+                    vertice = int(parts[1])
+    if (vertice):
+        return vertice
+    else:
+        print("Vertice não encontrado!!")
+        pass
+    
+
+def BFS_search(long1, lat1, long2, lat2, file_name, graph):
+    
+    initialVertice = get_vertice(long1, lat1, file_name)
+    finalVertice = get_vertice(long2, lat2, file_name)
+    
+    if not(initialVertice):
+        print("Vertice 1 não encontrado!!")
+        return 0,0,0,0
+    elif not(finalVertice):
+        print("Vertice 2 não encontrado!!")
+        return 0,0,0,0
     
     tempo_inicial = time.time()
     #nós expandidos
@@ -70,7 +98,9 @@ def DFS_search(initialVertice, finalVertice, graph, heuristica):
 
 def main():
     grafo = {1:[(2, 4),(5,3),(9,10)], 2:[(1,4),(3,5),(4,4)], 3:[(2,5)], 4:[(2,4)], 5:[(1,3),(6,9)], 6:[(5,9),(7,5)], 7:[(6,5),(8,10)], 8:[(7,10)], 9:[(1,10),(10,15)], 10:[(9,15)]}
-    distancia, ramos, time, no = BFS_search(1,7,grafo)
+    arquivo = 'USA-road-d.NY.co'
+    
+    distancia, ramos, time, no = BFS_search(-73795916,40737894,-73795813,40737185,arquivo,grafo)
     print("\n",distancia)
     print(ramos)
     print(time)
