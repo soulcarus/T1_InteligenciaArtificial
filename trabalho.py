@@ -10,6 +10,7 @@ from shapely.geometry import LineString, Point
     dict key = origem 
     grafo[key] = [(destino_1, peso_1), (destino_2, peso_2), ...]
 '''
+
 global caminho
 
 def gerar_shapefile(caminhos):
@@ -24,7 +25,6 @@ def gerar_shapefile(caminhos):
     df = gpd.GeoDataFrame(geometry=g)
 
     df.to_file("caminho.shp")
-   
 
 def ler_grafo_distancia(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINIDO ( ÍCARO )
     grafo = {}
