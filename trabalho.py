@@ -1,7 +1,6 @@
 import time
 import math
-from qgis.core import *
-import qgis.utils
+import geopandas
 
 ''' Todo: Qgiz, Oeste Americano (Teste), A* Bi-Direcional, BFS, DFS '''
 
@@ -11,8 +10,6 @@ import qgis.utils
     grafo[key] = [(destino_1, peso_1), (destino_2, peso_2), ...]
 '''
 
-def initialize_gqiz():
-    pass
 
 def ler_grafo_distancia(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINIDO ( ÍCARO )
     grafo = {}
@@ -87,6 +84,7 @@ def dijkstra_comprehension(grafo, origem): #FUNÇÃO CONCLUÍDA ( ÍCARO )
 
 #Função que calcula a linha reta entre duas coordenadas (terra plana), ou seja,
 #calcula a distância euclideana entre dois pontos.
+
 def euclidean_dist(v1, v2, graph_co): #Função concluida (Carlos Gabriel)
     if v1 == v2:
         return 0.00
