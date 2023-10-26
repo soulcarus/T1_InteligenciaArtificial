@@ -4,23 +4,131 @@ import threading
 # from qgis.core import *
 # import qgis.utils
 
+pathTraveledGoing = []
+pathTraveledReturning = []
+
 class myThread(threading.Thread):
-    def __init__(self, id, name, func):
+    def __init__(self, id, name, func, initialVertice, finalVertice, graph, heuristica, graph_co):
         threading.Thread.__init__(self)
         self.id = id
         self.name = name
         self.func = func
+        self.initialVertice = initialVertice
+        self.finalVertice = finalVertice
+        self.graph = graph
+        self.heuristica = heuristica
+        self.graph_co = graph_co
     
     def run(self):
-        print(f'Iniciando a thread {self.name}')
-        self.func(self.name)
-        print(f'Fim da thread {self.name}')
+        print(f'Iniciando a thread {self.name}\n')
+        self.func(self.initialVertice, self.finalVertice, self.graph, self.heuristica, self.graph_co,self.name)
+        print(f'Fim da thread {self.name}\n')
 
-def testThread(name):
-    count = 0
-    while (count < 1000):
-        print(f'Processo {count} da thread {name}')
-        count = count + 1
+
+def a_star_search_bidirectional(initialVertice, finalVertice, graph, heuristica, graph_co, guidance):
+    tempo_inicial = time.time()
+    if (guidance == "returning"):
+        initialVerticeAux = initialVertice
+        finalVerticeAux = finalVertice
+        initialVertice = finalVerticeAux
+        finalVertice = initialVerticeAux
+    if heuristica == "euclidiana":
+        initialVerticeDict = {
+            "father": None,
+            "vertice": initialVertice,
+            "g": 0,
+            "h": euclidean_dist(initialVertice, finalVertice, graph_co),
+        }
+    elif heuristica == "haversine":
+        initialVerticeDict = {
+            "father": None,
+            "vertice": initialVertice,
+            "g": 0,
+            "h": haversine_dist(initialVertice, finalVertice, graph_co),
+        }
+    elif heuristica == "manhattan":
+        initialVerticeDict = {
+            "father": None,
+            "vertice": initialVertice,
+            "g": 0,
+            "h": manhattan_dist(initialVertice, finalVertice, graph_co),
+        }
+    else:
+        print("Heurística inválida.")
+        return
+
+    openingList = [initialVerticeDict]
+    closedList = []
+    contador_expansao = 0
+
+    while openingList:
+        contador_expansao += 1
+        current_vertice = min(openingList, key=lambda v: f_calc(v))
+        # print(f"current: {current_vertice}") #PRINT ESTILO GABRIEL
+        # time.sleep(1.5)
+
+        if current_vertice["vertice"] == finalVertice:
+            # O destino foi alcançado, pare o loop
+            break
+
+        openingList.remove(current_vertice)
+        closedList.append(current_vertice)
+
+        for neighbor, dist in graph[current_vertice["vertice"]]:
+            neighborDict = {
+                "father": current_vertice["vertice"],
+                "vertice": neighbor,
+                "g": current_vertice["g"] + dist,
+                "h": 0,
+            }
+
+            if heuristica == "euclidiana":
+                neighborDict["h"] = euclidean_dist(neighbor, finalVertice, graph_co)
+            elif heuristica == "haversine":
+                neighborDict["h"] = haversine_dist(neighbor, finalVertice, graph_co)
+            elif heuristica == "manhattan":
+                neighborDict["h"] = manhattan_dist(neighbor, finalVertice, graph_co)
+
+            #COMENTE ISSO PARA VER SEM AS MINHAS IMPLEMENTAÇÕES (ÍCARO)
+
+            # ATUALIZAÇÃO DE CAMINHOS E EFICIENCIA
+            if neighborDict["vertice"] in [v["vertice"] for v in openingList]:
+                for v in openingList:
+                    if v["vertice"] == neighborDict["vertice"]:
+                        if neighborDict["g"] < v["g"]:
+                            v["g"] = neighborDict["g"]
+                            v["father"] = current_vertice["vertice"]
+            elif neighborDict["vertice"] in [v["vertice"] for v in closedList]:
+                for v in closedList:
+                    if v["vertice"] == neighborDict["vertice"]:
+                        if neighborDict["g"] < v["g"]:
+                            v["g"] = neighborDict["g"]
+                            v["father"] = current_vertice["vertice"]
+            else:
+                openingList.append(neighborDict) #DEIDENTE ESSA PARTE SE COMENTAR
+
+        #PRINT ESTILO ICARO (to cansado de ingles)
+        # print(f"Expansão {contador_expansao}: Vertice={current_vertice['vertice']}, f={f_calc(current_vertice)}, g={current_vertice['g']}, h={current_vertice['h']}")
+
+    #ENCONTRAR CAMINHO
+    if current_vertice["vertice"] == finalVertice:
+        path = []
+        current = current_vertice
+        while current is not None:
+            path.append(current["vertice"])
+            # print(path)
+            current = [v for v in closedList if v["vertice"] == current["father"]][0] if current["father"] is not None else None
+        # print(path)
+        # print(path.reverse()) nao funciona?
+        tempo_final = time.time()
+        tempo = tempo_final - tempo_inicial
+        print("Tempo de execução:", tempo)
+        print("Caminho encontrado:", path)
+    else:
+        print("Caminho não encontrado.")
+    
+    return path, tempo, contador_expansao, neighborDict["g"]
+
 ''' Todo: Qgiz, Oeste Americano (Teste), A* Bi-Direcional, BFS, DFS '''
 
 ''' FUNÇÃO ler_grafo
@@ -440,16 +548,6 @@ def DFS_search(initialVertice, finalVertice, graph): #FEITA POR DEOCLÉCIO, CONC
     return distancia, tempo, no_expands, caminho
 
 def main():
-    # thread1 = myThread(1, 't1', testThread)
-    # thread2 = myThread(2, 't2', testThread)
-
-    # arrThread = []
-    # arrThread.append(thread1)
-    # arrThread.append(thread2)
-
-    # thread1.start()
-    # thread2.start()
-
     nome_arquivo_gr = './USA-road-d.NY.gr'  # Arquivo de distâncias
     nome_arquivo_co = './USA-road-d.NY.co'  # Arquivo de coordenadas
     print("origem atual: 300")
@@ -510,6 +608,9 @@ def main():
         print("5 - BFS")
         print("6 - DFS")
         print("7 - Relatório")
+        print("8 - A* bidirecional com Heurística Euclidiana")
+        print("9 - A* bidirecional com Heurística de Haversine")
+        print("10 - A* bidirecional com Heurística de Manhattan")
         print("0 - Sair")
         
         entrada = input("Selecione o Algoritmo -> ")
@@ -574,6 +675,15 @@ def main():
                 for cateogory, item in j.items():
                     print(f"{cateogory} - {item}")
                 print("\n")
+        elif entrada == "8" or "9" or "10":
+            grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
+            grafo_coordenadas = ler_grafo_coordenadas(nome_arquivo_co)
+
+            thread1 = myThread(1, 'going', a_star_search_bidirectional, origem, destino, grafo_distancias,"haversine", grafo_coordenadas)
+            thread2 = myThread(2, 'returning', a_star_search_bidirectional, origem, destino, grafo_distancias,"haversine", grafo_coordenadas)
+
+            thread1.start()
+            thread2.start()
 
         elif entrada == '0':
             break
