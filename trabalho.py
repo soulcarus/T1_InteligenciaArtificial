@@ -414,6 +414,8 @@ def DFS_search(initialVertice, finalVertice, graph): #FEITA POR DEOCLÉCIO, CONC
     tempo_final = time.time()    
     tempo = tempo_final - tempo_inicial
     ramificacao = edges_expands//no_expands
+    print(edges_expands)
+    print(no_expands)
 
     distancia = dados[new_id][3]
 
@@ -533,10 +535,10 @@ def main():
             grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
             distancia, tempo, nos_expandidos, caminho = DFS_search(origem, destino, grafo_distancias)
             caminho = caminho[::-1]
-            relatorio["BFS"]["Caminho"] = caminho
-            relatorio["BFS"]["Distancia"] = distancia
-            relatorio["BFS"]["Fator de Ramificação Médio"] = nos_expandidos
-            relatorio["BFS"]["Tempo"] = tempo
+            relatorio["DFS"]["Caminho"] = caminho
+            relatorio["DFS"]["Distancia"] = distancia
+            relatorio["DFS"]["Fator de Ramificação Médio"] = nos_expandidos
+            relatorio["DFS"]["Tempo"] = tempo
         elif entrada == "7":
             print("\nRELATÓRIO\n")
             for i, j in relatorio.items():
