@@ -1,6 +1,7 @@
 import time
 import math
-import geopandas
+import geopandas as gpd
+from shapely.geometry import LineString, Point
 
 ''' Todo: Qgiz, Oeste Americano (Teste), A* Bi-Direcional, BFS, DFS '''
 
@@ -9,7 +10,21 @@ import geopandas
     dict key = origem 
     grafo[key] = [(destino_1, peso_1), (destino_2, peso_2), ...]
 '''
+global caminho
 
+def gerar_shapefile(caminhos):
+    grafo_coordenadas = ler_grafo_coordenadas("./USA-road-d.NY.co")
+    coordenadas = []
+    for i, j in grafo_coordenadas.items():
+        if i in caminhos:
+            coordenadas.append(j[0])
+    
+    g = [Point(long, lat) for lat, long in coordenadas]
+    # g = [LineString(coordenadas[i:i+2]) for i in range(len(coordenadas) - 1)]
+    df = gpd.GeoDataFrame(geometry=g)
+
+    df.to_file("caminho.shp")
+   
 
 def ler_grafo_distancia(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINIDO ( ÍCARO )
     grafo = {}
@@ -480,6 +495,7 @@ def main():
         print("5 - BFS")
         print("6 - DFS")
         print("7 - Relatório")
+        print("11 - GERAR SHAPEFILE DA ULTIMA BUSCA")
         print("0 - Sair")
         
         entrada = input("Selecione o Algoritmo -> ")
@@ -544,7 +560,8 @@ def main():
                 for cateogory, item in j.items():
                     print(f"{cateogory} - {item}")
                 print("\n")
-
+        elif entrada == "11":
+            gerar_shapefile(caminho)
         elif entrada == '0':
             break
         else:
