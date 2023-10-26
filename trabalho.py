@@ -1,6 +1,24 @@
 import time
 import math
+import threading
 
+class myThread(threading.Thread):
+    def __init__(self, id, name, func):
+        threading.Thread.__init__(self)
+        self.id = id
+        self.name = name
+        self.func = func
+    
+    def run(self):
+        print(f'Iniciando a thread {self.name}')
+        self.func(self.name)
+        print(f'Fim da thread {self.name}')
+
+def testThread(name):
+    count = 0
+    while (count < 1000):
+        print(f'Processo {count} da thread {name}')
+        count = count + 1
 ''' Todo: Qgiz, Oeste Americano (Teste), A* Bi-Direcional, BFS, DFS '''
 
 ''' FUNÇÃO ler_grafo
@@ -273,112 +291,127 @@ def a_star_search(initialVertice, finalVertice, graph, heuristica):
     return path, tempo, contador_expansao, neighborDict["g"]
 
 def main():
-    nome_arquivo_gr = './USA-road-d.NY.gr'  # Arquivo de distâncias
-    print("origem atual: 300")
-    print("destino atual: 400")
-    choose = input("Alterar origem e destino? S/N? -> ")
+    thread1 = myThread(1, 't1', testThread)
+    thread2 = myThread(2, 't2', testThread)
 
-    origem = 300
-    destino = 400
+    arrThread = []
+    arrThread.append(thread1)
+    arrThread.append(thread2)
 
-    relatorio = {
-        "Dijkstra": {
-            "Caminho": None,
-            "Distancia": None,
-            "Fator de Ramificação Médio": None,
-            "Tempo": None,
-        },
-        "A* HAVERSINI": {
-            "Caminho": None,
-            "Distancia": None,
-            "Fator de Ramificação Médio": None,
-            "Tempo": None,
-        },
-        "A* EUCLIDIANO": {
-            "Caminho": None,
-            "Distancia": None,
-            "Fator de Ramificação Médio": None,
-            "Tempo": None,
-        },
-        "A* MANHATTAN": {
-            "Caminho": None,
-            "Distancia": None,
-            "Fator de Ramificação Médio": None,
-            "Tempo": None,
-        },
-        "BFS": {
-            "Caminho": None,
-            "Distancia": None,
-            "Fator de Ramificação Médio": None,
-            "Tempo": None,
-        },
-        "DFS": {
-            "Caminho": None,
-            "Distancia": None,
-            "Fator de Ramificação Médio": None,
-            "Tempo": None,
-        }
-    }
+    thread1.start()
+    thread2.start()
 
-    if choose == 'S':
-        origem = int(input("Origem: "))
-        destino = int(input("Destino: "))
+    for t in arrThread:
+        t.join()
+
+    print('fim do programa')
+    # nome_arquivo_gr = './USA-road-d.NY.gr'  # Arquivo de distâncias
+    # print("origem atual: 300")
+    # print("destino atual: 400")
+    # choose = input("Alterar origem e destino? S/N? -> ")
+
+    # origem = 300
+    # destino = 400
+
+    # relatorio = {
+    #     "Dijkstra": {
+    #         "Caminho": None,
+    #         "Distancia": None,
+    #         "Fator de Ramificação Médio": None,
+    #         "Tempo": None,
+    #     },
+    #     "A* HAVERSINI": {
+    #         "Caminho": None,
+    #         "Distancia": None,
+    #         "Fator de Ramificação Médio": None,
+    #         "Tempo": None,
+    #     },
+    #     "A* EUCLIDIANO": {
+    #         "Caminho": None,
+    #         "Distancia": None,
+    #         "Fator de Ramificação Médio": None,
+    #         "Tempo": None,
+    #     },
+    #     "A* MANHATTAN": {
+    #         "Caminho": None,
+    #         "Distancia": None,
+    #         "Fator de Ramificação Médio": None,
+    #         "Tempo": None,
+    #     },
+    #     "BFS": {
+    #         "Caminho": None,
+    #         "Distancia": None,
+    #         "Fator de Ramificação Médio": None,
+    #         "Tempo": None,
+    #     },
+    #     "DFS": {
+    #         "Caminho": None,
+    #         "Distancia": None,
+    #         "Fator de Ramificação Médio": None,
+    #         "Tempo": None,
+    #     }
+    # }
+
+    # if choose == 'S':
+    #     origem = int(input("Origem: "))
+    #     destino = int(input("Destino: "))
     
-    while True:
-        print("1 - A* com Heurística Euclidiana")
-        print("2 - A* com Heurística de Haversine")
-        print("3 - A* com Heurística de Manhattan")
-        print("4 - Dijkstra")
-        print("5 - Relatório")
-        print("0 - Sair")
+    # while True:
+    #     print("1 - A* com Heurística Euclidiana")
+    #     print("2 - A* com Heurística de Haversine")
+    #     print("3 - A* com Heurística de Manhattan")
+    #     print("4 - Dijkstra")
+    #     print("5 - Relatório")
+    #     print("0 - Sair")
         
-        entrada = input("Selecione o Algoritmo -> ")
+    #     entrada = input("Selecione o Algoritmo -> ")
 
-        if entrada == '1':
-            grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
-            caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias, "euclidiana")
-            relatorio["A* EUCLIDIANO"]["Caminho"] = caminho
-            relatorio["A* EUCLIDIANO"]["Distancia"] = distancia
-            relatorio["A* EUCLIDIANO"]["Fator de Ramificação Médio"] = nos_expandidos
-            relatorio["A* EUCLIDIANO"]["Tempo"] = tempo
+    #     if entrada == '1':
+    #         grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
+    #         caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias, "euclidiana")
+    #         relatorio["A* EUCLIDIANO"]["Caminho"] = caminho
+    #         relatorio["A* EUCLIDIANO"]["Distancia"] = distancia
+    #         relatorio["A* EUCLIDIANO"]["Fator de Ramificação Médio"] = nos_expandidos
+    #         relatorio["A* EUCLIDIANO"]["Tempo"] = tempo
 
-        elif entrada == '2':
-            grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
-            caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias,"haversine")
-            relatorio["A* HAVERSINI"]["Caminho"] = caminho
-            relatorio["A* HAVERSINI"]["Distancia"] = distancia
-            relatorio["A* HAVERSINI"]["Fator de Ramificação Médio"] = nos_expandidos
-            relatorio["A* HAVERSINI"]["Tempo"] = tempo
-        elif entrada == '3':
-            grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
-            caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias,"manhattan")
-            relatorio["A* MANHATTAN"]["Caminho"] = caminho
-            relatorio["A* MANHATTAN"]["Distancia"] = distancia
-            relatorio["A* MANHATTAN"]["Fator de Ramificação Médio"] = nos_expandidos
-            relatorio["A* MANHATTAN"]["Tempo"] = tempo
-        elif entrada == '4':
-            grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
-            distancias, anteriores, tempo = dijkstra_comprehension(grafo_distancias, origem)
-            distancia_minima = distancias[destino]
-            caminho = encontrar_caminho(anteriores, destino)
-            print("caminho encontrado: ", caminho)
-            print("distancia minima: ", distancia_minima)
-            relatorio["Dijkstra"]["Caminho"] = caminho
-            relatorio["Dijkstra"]["Distancia"] = distancia_minima
-            relatorio["Dijkstra"]["Tempo"] = tempo
+    #     elif entrada == '2':
+    #         grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
+    #         caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias,"haversine")
+    #         relatorio["A* HAVERSINI"]["Caminho"] = caminho
+    #         relatorio["A* HAVERSINI"]["Distancia"] = distancia
+    #         relatorio["A* HAVERSINI"]["Fator de Ramificação Médio"] = nos_expandidos
+    #         relatorio["A* HAVERSINI"]["Tempo"] = tempo
+    #     elif entrada == '3':
+    #         grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
+    #         caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias,"manhattan")
+    #         relatorio["A* MANHATTAN"]["Caminho"] = caminho
+    #         relatorio["A* MANHATTAN"]["Distancia"] = distancia
+    #         relatorio["A* MANHATTAN"]["Fator de Ramificação Médio"] = nos_expandidos
+    #         relatorio["A* MANHATTAN"]["Tempo"] = tempo
+    #     elif entrada == '4':
+    #         grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
+    #         distancias, anteriores, tempo = dijkstra_comprehension(grafo_distancias, origem)
+    #         distancia_minima = distancias[destino]
+    #         caminho = encontrar_caminho(anteriores, destino)
+    #         print("caminho encontrado: ", caminho)
+    #         print("distancia minima: ", distancia_minima)
+    #         relatorio["Dijkstra"]["Caminho"] = caminho
+    #         relatorio["Dijkstra"]["Distancia"] = distancia_minima
+    #         relatorio["Dijkstra"]["Tempo"] = tempo
 
-        elif entrada == "5":
-            print("\nRELATÓRIO\n")
-            for i, j in relatorio.items():
-                print(f"{i}:")
-                for cateogory, item in j.items():
-                    print(f"{cateogory} - {item}")
-                print("\n")
+    #     elif entrada == "5":
+    #         print("\nRELATÓRIO\n")
+    #         for i, j in relatorio.items():
+    #             print(f"{i}:")
+    #             for cateogory, item in j.items():
+    #                 print(f"{cateogory} - {item}")
+    #             print("\n")
 
-        elif entrada == '0':
-            break
-        else:
-            print("Opção Inválida!")
+    #     elif entrada == '0':
+    #         break
+    #     else:
+    #         print("Opção Inválida!")
+
 
 if __name__ == "__main__":
     main()
