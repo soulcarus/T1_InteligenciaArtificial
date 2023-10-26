@@ -45,7 +45,7 @@ def ler_grafo_coordenadas(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFI
     return grafo
 
 #FUNÇÃO QUE MAPEIA O CAMINHO TRAÇADO
-def encontrar_caminho(anteriores, destino): #CONCLUÍDA ( ÍCARO )
+def encontrar_caminho(anteriores, destino): #FUNÇÃO CONCLUÍDA ( ÍCARO )
     caminho = []
     no_atual = destino
     while no_atual is not None:
@@ -54,7 +54,7 @@ def encontrar_caminho(anteriores, destino): #CONCLUÍDA ( ÍCARO )
     caminho.reverse()
     return caminho
 
-def dijkstra_comprehension(grafo, origem): #FUNCIONAL CONCLUÍDA ( ÍCARO )
+def dijkstra_comprehension(grafo, origem): #FUNÇÃO CONCLUÍDA ( ÍCARO )
     inicio = time.time()
     #definir todos os nós para infinito
     distancias = {no: float('inf') for no in grafo} 
@@ -226,6 +226,7 @@ def a_star_search(initialVertice, finalVertice, graph, heuristica, graph_co):
         contador_expansao += 1
         current_vertice = min(openingList, key=lambda v: f_calc(v))
         # print(f"current: {current_vertice}") #PRINT ESTILO GABRIEL
+        # time.sleep(1.5)
 
         if current_vertice["vertice"] == finalVertice:
             # O destino foi alcançado, pare o loop
@@ -289,9 +290,140 @@ def a_star_search(initialVertice, finalVertice, graph, heuristica, graph_co):
     
     return path, tempo, contador_expansao, neighborDict["g"]
 
+def BFS_search(initialVertice, finalVertice, graph): #FEITA POR DEOCLÉCIO, CONCLUÍDA POR ÍCARO
+    
+    tempo_inicial = time.time()
+    #nós expandidos
+    no_expands=0
+    #arestas geradas
+    edges_expands=0
+    #lista com o caminho do no inicial ao no final
+    caminho = []
+    #variavel pra cheacr fim da repetição
+    fim =0
+    
+    
+    #fila
+    queue = []
+    #Dicionario na forma {id: [pai, distancia de arestas, distancia em KM, cor]}
+    dados = {}
+    #inicia os vetores
+    for v in graph:
+        dados[v]=[-1,0,0,"W"]
+    dados[initialVertice] = [-1,0,0,'G']
+    
+    #coloca o primeiro vertice na fila
+    queue.append(initialVertice)
+    
+    while(len(queue) > 0):
+        id = queue[0]
+        no_expands = no_expands+1
+        for v in graph[id]:
+            edges_expands = edges_expands+1
+            new_id = v[0]
+            if dados[new_id][3] == 'W':
+                dados[new_id][0] = id
+                dados[new_id][1] = dados[id][1]+1
+                dados[new_id][2] = dados[id][2] + v[1]
+                dados[new_id][3] = 'G'
+                queue.append(new_id)
+            if new_id == finalVertice:
+                print("Vertice encontrado!")
+                id = new_id
+                queue.clear()
+                fim = 1
+            if(fim):
+                break
+        if(fim):
+            break
+        queue.remove(id)
+        dados[id][3]='B'
+        
+    while(dados[id][1]>0):
+        caminho.append(id)  
+        id=dados[id][0]
+    caminho.append(id)
+        
+    print(caminho)
+            
+            
+    tempo_final = time.time()    
+    tempo = tempo_final - tempo_inicial
+    ramificacao = edges_expands//no_expands
+    distancia = dados[new_id][2]
+    
+    return distancia, tempo, no_expands, caminho
+
+def DFS_search(initialVertice, finalVertice, graph): #FEITA POR DEOCLÉCIO, CONCLUÍDA POR ÍCARO
+
+    tempo_inicial = time.time()
+    no_expands=0            #nós expandidos
+    edges_expands=0         #arestas geradas
+    caminho = []            #lista com o caminho do no inicial ao no final
+    fim =0                  #variavel pra cheacr fim da repetição
+    pilha = []
+
+
+    #Dicionario na forma {id: [pai, tempo de chegada, tempo final, distancia em KM, cor]}
+    dados = {}
+    #inicia os vetores
+    for v in graph:
+        dados[v]=[-1,0,0,0,"W"]
+    dados[initialVertice] = [-1,1,0,0,'G']
+    pilha.append(initialVertice) 
+    tempo = 1
+
+    while(len(pilha)):
+        id = pilha[-1]
+        for v in graph[id]:
+            new_id = v[0]
+            if new_id in pilha:
+                continue
+            if dados[new_id][4] == 'W':
+                tempo = tempo + 1
+                edges_expands = edges_expands+1
+                dados[new_id][0] = id
+                dados[new_id][1] = tempo
+                dados[new_id][3] = dados[id][3] + v[1]
+                dados[new_id][4] = 'G'
+                pilha.append(new_id)
+                if new_id == finalVertice:
+                    print("Vertice encontrado!")
+                    id = new_id
+                    fim = 1
+                break
+            if(fim):
+                break
+        if(fim):
+            break
+        if(id == pilha[-1]):
+            dados[id][2]=tempo
+            dados[id][4]='B'
+            pilha.remove(id)
+            no_expands = no_expands+1
+
+    while(len(pilha)>1):
+        pilha.remove(pilha[-1])
+        no_expands = no_expands+1
+
+    while(dados[id][0]>0):
+        caminho.append(id)  
+        id=dados[id][0]
+    caminho.append(id)
+
+    tempo_final = time.time()    
+    tempo = tempo_final - tempo_inicial
+    ramificacao = edges_expands//no_expands
+    print(edges_expands)
+    print(no_expands)
+
+    distancia = dados[new_id][3]
+
+    return distancia, tempo, no_expands, caminho
+
 def main():
     nome_arquivo_gr = './USA-road-d.NY.gr'  # Arquivo de distâncias
-    nome_arquivo_co = './USA-road-d.NY.co'
+    nome_arquivo_co = './USA-road-d.NY.co'  # Arquivo de coordenadas
     print("origem atual: 300")
     print("destino atual: 400")
     choose = input("Alterar origem e destino? S/N? -> ")
@@ -338,7 +470,7 @@ def main():
         }
     }
 
-    if choose == 'S':
+    if choose in ['s', 'S']:
         origem = int(input("Origem: "))
         destino = int(input("Destino: "))
     
@@ -347,7 +479,9 @@ def main():
         print("2 - A* com Heurística de Haversine")
         print("3 - A* com Heurística de Manhattan")
         print("4 - Dijkstra")
-        print("5 - Relatório")
+        print("5 - BFS")
+        print("6 - DFS")
+        print("7 - Relatório")
         print("0 - Sair")
         
         entrada = input("Selecione o Algoritmo -> ")
@@ -356,15 +490,16 @@ def main():
             grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
             grafo_coordenadas = ler_grafo_coordenadas(nome_arquivo_co)
             caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias, "euclidiana", grafo_coordenadas)
+            caminho = caminho[::-1]
             relatorio["A* EUCLIDIANO"]["Caminho"] = caminho
             relatorio["A* EUCLIDIANO"]["Distancia"] = distancia
             relatorio["A* EUCLIDIANO"]["Fator de Ramificação Médio"] = nos_expandidos
             relatorio["A* EUCLIDIANO"]["Tempo"] = tempo
-
         elif entrada == '2':
             grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
             grafo_coordenadas = ler_grafo_coordenadas(nome_arquivo_co)
             caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias,"haversine", grafo_coordenadas)
+            caminho = caminho[::-1]
             relatorio["A* HAVERSINI"]["Caminho"] = caminho
             relatorio["A* HAVERSINI"]["Distancia"] = distancia
             relatorio["A* HAVERSINI"]["Fator de Ramificação Médio"] = nos_expandidos
@@ -373,6 +508,7 @@ def main():
             grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
             grafo_coordenadas = ler_grafo_coordenadas(nome_arquivo_co)
             caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias,"manhattan", grafo_coordenadas)
+            caminho = caminho[::-1]
             relatorio["A* MANHATTAN"]["Caminho"] = caminho
             relatorio["A* MANHATTAN"]["Distancia"] = distancia
             relatorio["A* MANHATTAN"]["Fator de Ramificação Médio"] = nos_expandidos
@@ -387,8 +523,23 @@ def main():
             relatorio["Dijkstra"]["Caminho"] = caminho
             relatorio["Dijkstra"]["Distancia"] = distancia_minima
             relatorio["Dijkstra"]["Tempo"] = tempo
-
-        elif entrada == "5":
+        elif entrada == '5':
+            grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
+            distancia, tempo, nos_expandidos, caminho = BFS_search(origem, destino, grafo_distancias)
+            caminho = caminho[::-1]
+            relatorio["BFS"]["Caminho"] = caminho
+            relatorio["BFS"]["Distancia"] = distancia
+            relatorio["BFS"]["Fator de Ramificação Médio"] = nos_expandidos
+            relatorio["BFS"]["Tempo"] = tempo
+        elif entrada == '6':
+            grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
+            distancia, tempo, nos_expandidos, caminho = DFS_search(origem, destino, grafo_distancias)
+            caminho = caminho[::-1]
+            relatorio["DFS"]["Caminho"] = caminho
+            relatorio["DFS"]["Distancia"] = distancia
+            relatorio["DFS"]["Fator de Ramificação Médio"] = nos_expandidos
+            relatorio["DFS"]["Tempo"] = tempo
+        elif entrada == "7":
             print("\nRELATÓRIO\n")
             for i, j in relatorio.items():
                 print(f"{i}:")
