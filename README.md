@@ -17,12 +17,12 @@
 
 - [x] Implementar o algoritmo de Dijkstra.
 - [x] Calcular a quantidade de nós expandidos.
-- [ ] Calcular o fator de ramificação médio.
+- [x] Calcular o fator de ramificação médio.
 
 ### Memória e Tempo:
 
 - [ ] Calcular a quantidade de memória alocada para a execução.
-- [ ] Medir o tempo necessário para encontrar a solução.
+- [x] Medir o tempo necessário para encontrar a solução.
 
 ## TAREFAS PENDENTES - GABRIEL <a name="to-do-gabriel"></a>
 
@@ -31,23 +31,23 @@
 - [x] Implementar o algoritmo A*.
 - [ ] Implementar o algoritmo A* Bi-Direcional.
 - [x] Calcular a quantidade de nós expandidos (A*).
-- [ ] Calcular o fator de ramificação médio (A*).
+- [x] Calcular o fator de ramificação médio (A*).
 - [ ] Calcular a quantidade de nós expandidos (A* Bi-Direcional).
 - [ ] Calcular o fator de ramificação médio (A* Bi-Direcional).
 
 ### Heurísticas:
 
 - [x] Implementar a heurística de terra plana.
-- [ ] Corrigir a heurística de terra plana.
-- [ ] Implementar a heurística de Manhattan.
+- [x] Corrigir a heurística de terra plana.
+- [x] Implementar a heurística de Manhattan.
 
 ## TAREFAS PENDENTES - DEOCLECIO <a name="to-do-deoclecio"></a>
 
 ### Algoritmos:
 
-- [ ] Implementar o algoritmo BFS.
-- [ ] Implementar o algoritmo DFS ou DFS-Contorno.
-- [ ] Calcular a quantidade de nós expandidos (BFS).
-- [ ] Calcular o fator de ramificação médio (BFS).
-- [ ] Calcular a quantidade de nós expandidos (DFS).
-- [ ] Calcular o fator de ramificação médio (DFS).
+- [x] Implementar o algoritmo BFS.
+- [x] Implementar o algoritmo DFS ou DFS-Contorno.
+- [x] Calcular a quantidade de nós expandidos (BFS).
+- [x] Calcular o fator de ramificação médio (BFS).
+- [x] Calcular a quantidade de nós expandidos (DFS).
+- [x] Calcular o fator de ramificação médio (DFS).
