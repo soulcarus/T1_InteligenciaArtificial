@@ -562,18 +562,22 @@ def DFS_search(initialVertice, finalVertice, graph): #FEITA POR DEOCLÉCIO, CONC
 def main():
     print("ESCOLHA UM MAPA (obs: coloque o arquivo na pasta)")
     print("1 - NEW YORK")
-    print("2 - OESTE")
+    print("2 - LESTE")
+    print("3 - OESTE")
     print("3 - ESTADOS UNIDOS INTEIRO")
     escolha = input("MAPA -> ")
     if escolha == 1:
         nome_arquivo_gr = './USA-road-d.NY.gr'
         nome_arquivo_co = './USA-road-d.NY.co'
-    elif escolha == 2:
+    elif escolha == 3:
         nome_arquivo_gr = './USA-road-d.W.gr'  # Arquivo de distâncias
         nome_arquivo_co = './USA-road-d.W.co'  # Arquivo de coordenadas
-    elif escolha == 3:
+    elif escolha == 4:
         nome_arquivo_gr = './USA-road-d.USA.co'
         nome_arquivo_co = './USA-road-d.USA.co'
+    elif escolha == 2:
+        nome_arquivo_gr = './USA-road-d.E.co'
+        nome_arquivo_co = './USA-road-d.E.co'
     else:
         nome_arquivo_gr = './USA-road-d.NY.gr'
         nome_arquivo_co = './USA-road-d.NY.co'
