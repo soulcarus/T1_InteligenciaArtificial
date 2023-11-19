@@ -1,8 +1,9 @@
 import time
 import math
-import threading
+from functools import cache
 import pandas as pd
 import geopandas as gpd
+import networkx as nx
 from shapely.geometry import LineString, Point
 import criar_csv
 import psutil
@@ -31,31 +32,33 @@ def ler_grafo_distancia(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINI
     grafo = {}
     with open(nome_arquivo, 'r') as arquivo:
         linhas = arquivo.readlines()
+        linhas = linhas[7:]
         for linha in linhas:
-            if linha.startswith('a'): #if linha[0] == 'a'
-                partes = linha.strip().split()
-                origem = int(partes[1])
-                destino = int(partes[2])
-                distancia = int(partes[3])
-                if origem not in grafo:
-                    grafo[origem] = []
-                grafo[origem].append((destino, distancia))
+            partes = linha.split()
+            origem = int(partes[1])
+            destino = int(partes[2])
+            distancia = int(partes[3])
+            if origem not in grafo:
+                grafo[origem] = []
+            grafo[origem].append((destino, distancia))
     return grafo
 
 def ler_grafo_coordenadas(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINIDO ( ÍCARO )
     grafo = {}
     with open(nome_arquivo, 'r') as arquivo:
         linhas = arquivo.readlines()
+        linhas = linhas[7:]
         for linha in linhas:
-            if linha.startswith('v'): #if linha[0] == 'v'
-                partes = linha.strip().split()
-                origem = int(partes[1])
-                latitude = int(partes[2])
-                longitude = int(partes[3])
-                if origem not in grafo:
-                    grafo[origem] = []
-                grafo[origem].append((latitude, longitude))
+            partes = linha.split()
+            origem = int(partes[1])
+            latitude = int(partes[2])
+            longitude = int(partes[3])
+            if origem not in grafo:
+                grafo[origem] = []
+            grafo[origem].append((latitude, longitude))
     return grafo
+
+
 
 #FUNÇÃO QUE MAPEIA O CAMINHO TRAÇADO
 def encontrar_caminho(anteriores, destino): #FUNÇÃO CONCLUÍDA ( ÍCARO )
@@ -67,12 +70,15 @@ def encontrar_caminho(anteriores, destino): #FUNÇÃO CONCLUÍDA ( ÍCARO )
     caminho.reverse()
     return caminho
 
+
 def dijkstra_comprehension(grafo, origem): #FUNÇÃO CONCLUÍDA ( ÍCARO )
     inicio = time.time()
     #definir todos os nós para infinito
-    distancias = {no: float('inf') for no in grafo} 
+    distancias = {no: float('inf') for no in grafo}
+    print('distancias ok')
     #definir todos os nós anteriores como nulo
     anteriores = {no: None for no in grafo}
+    print('anteriores ok')
     #a distancia da origem é 0
     distancias[origem] = 0
     #a fila vai de 0 até a origem (0)
@@ -82,6 +88,7 @@ def dijkstra_comprehension(grafo, origem): #FUNÇÃO CONCLUÍDA ( ÍCARO )
     while fila:
         #ordene-a
         fila.sort()
+        # print(fila)
         # print("fila ordenada: ", fila)
         
         distancia_atual, no_atual = fila.pop(0)
@@ -92,12 +99,14 @@ def dijkstra_comprehension(grafo, origem): #FUNÇÃO CONCLUÍDA ( ÍCARO )
         contador += 1
         
         for vizinho, distancia in grafo[no_atual]:
+            # print(grafo[no_atual])
             distancia_total = distancia_atual + distancia
 
             if distancia_total < distancias[vizinho]:
                 distancias[vizinho] = distancia_total
                 anteriores[vizinho] = no_atual
                 fila.append((distancia_total, vizinho))
+
     final = time.time()
     return distancias, anteriores, (final - inicio), contador
 
@@ -106,17 +115,14 @@ def dijkstra_comprehension(grafo, origem): #FUNÇÃO CONCLUÍDA ( ÍCARO )
 def euclidean_dist(v1, v2, graph_co): #Função concluida (Carlos Gabriel)
     if v1 == v2:
         return 0.00
-    lat1, long1, lat2, long2 = 0, 0, 0, 0
-    for vertice, atributos in graph_co.items():
-        if vertice == v1:
-            # print(vertice, atributos)
-            lat1 = atributos[0][0]
-            long1 = atributos[0][1]
-        if vertice == v2:
-            lat2 = atributos[0][0]
-            long2 = atributos[0][1]
-        if lat1 and long1 and lat2 and long2:
-            break
+
+    atributos = graph_co.get(v1)
+    atributos_2 = graph_co.get(v2)
+
+    lat1 = atributos[0][0]
+    long1 = atributos[0][1]
+    lat2 = atributos_2[0][0]
+    long2 = atributos_2[0][1]
 
     # lat1, long1 = latitude e longitude do vertice de origem
     # lat2, long2 = latitude e longitude do vertice de destino
@@ -134,17 +140,13 @@ def euclidean_dist(v1, v2, graph_co): #Função concluida (Carlos Gabriel)
 def haversine_dist(v1, v2, graph_co): #Função concluida (João Ícaro)
     if v1 == v2:
         return 0.00
-    lat1, long1, lat2, long2 = 0, 0, 0, 0
-    for vertice, atributos in graph_co.items():
-        if vertice == v1:
-            # print(vertice, atributos)
-            lat1 = atributos[0][0]
-            long1 = atributos[0][1]
-        if vertice == v2:
-            lat2 = atributos[0][0]
-            long2 = atributos[0][1]
-        if lat1 and long1 and lat2 and long2:
-            break
+    atributos = graph_co.get(v1)
+    atributos_2 = graph_co.get(v2)
+
+    lat1 = atributos[0][0]
+    long1 = atributos[0][1]
+    lat2 = atributos_2[0][0]
+    long2 = atributos_2[0][1]
 
     # lat1, long1 = latitude e longitude do vertice de origem
     # lat2, long2 = latitude e longitude do vertice de destino
@@ -179,17 +181,13 @@ def haversine_dist(v1, v2, graph_co): #Função concluida (João Ícaro)
 def manhattan_dist(v1, v2, graph_co): #Função concluida (Carlos Gabriel)
     if v1 == v2:
         return 0.00
-    lat1, long1, lat2, long2 = 0, 0, 0, 0
-    for vertice, atributos in graph_co.items():
-        if vertice == v1:
-            # print(vertice, atributos)
-            lat1 = atributos[0][0]
-            long1 = atributos[0][1]
-        if vertice == v2:
-            lat2 = atributos[0][0]
-            long2 = atributos[0][1]
-        if lat1 and long1 and lat2 and long2:
-            break
+    atributos = graph_co.get(v1)
+    atributos_2 = graph_co.get(v2)
+
+    lat1 = atributos[0][0]
+    long1 = atributos[0][1]
+    lat2 = atributos_2[0][0]
+    long2 = atributos_2[0][1]
 
     lat1 = lat1 / 1e6
     lat2 = lat2 / 1e6
@@ -439,75 +437,58 @@ def DFS_search(initialVertice, finalVertice, graph): #FEITA POR DEOCLÉCIO, CONC
 
 #CAMINHOS DE TESTE:
 
-caminhos = [
-    (1, 1048577),
-    (1, 449),
-    (1048577, 449),
-
-    (2, 3),
-    (2, 9807),
-    (3, 9807),
-
-    (1048578, 4),
-    (1048578, 803),
-    (4, 803),
-
-    (1048579, 1048580),
-    (1048579, 1689),
-    (1048580, 1689),
-
-    (1048579, 5),
-    (5, 502),
-    (1048579, 502),
-
-    (1048581, 2097153),
-    (1048581, 340),
-    (2097153, 340),
-
-    (6, 1048579),
-    (1048579, 3093),
-    (6, 3093),
-
-    (1048582, 2097154),
-    (1048582, 3104),
-    (2097154, 3104),
-
-    (7, 1048583),
-    (1048583, 5257),
-    (7, 5257),
-
-    (8, 9),
-    (8, 889),
-    (9, 889),
-
-    (7, 8),
-    (8, 1679),
-    (7, 1679),
-
-    (1048584, 7),
-    (1048584, 976),
-    (7, 976),
-
-    (1048584, 10),
-    (10, 5746),
-    (1048584, 5746),
-
-    (1048585, 2097155),
-    (1048585, 2689),
-    (2097155, 2689),
-
-    (11, 1048584),
-    (1048584, 1874),
-    (11, 1874),
-
-    (11, 1048586),
-    (1048586, 3234),
-    (11, 3234),
-
-    (2097156, 12),
-    (12, 2859),
-    (2097156, 2859),
-]
+caminhos = [(1, 33),
+            (9, 3),
+            (4, 15),
+            (9, 598),
+            (3165, 3211),
+            (3142, 1461),
+            (1177, 1355),
+            (3864, 1280),
+            (598, 603),
+            (1178, 3180),
+            (1461, 1373),
+            (15, 4),
+            (4887, 1729),
+            (1965, 1997),
+            (2022, 1249),
+            (4755, 4723),
+            (2029, 1673),
+            (990, 964),
+            (1, 64),
+            (1273, 1),
+            (979, 955),
+            (1235, 1276),
+            (2445, 64),
+            (977, 2338), 
+            (1000, 5412), 
+            (979, 1585), 
+            (990, 2340), 
+            (962, 1675), 
+            (1255, 1729), 
+            (987, 1584), 
+            (963, 1817), 
+            (991, 1688), 
+            (1259, 1874), 
+            (1253, 1813), 
+            (1259, 2022), 
+            (1273, 4926), 
+            (990, 2340), 
+            (1253, 2334), 
+            (1260, 5411), 
+            (990, 2027), 
+            (1283, 5411), 
+            (987, 1634), 
+            (13754, 1049281), 
+            (979, 2338), 
+            (1253, 1729), 
+            (1260, 2027), 
+            (1273, 2333), 
+            (13830, 13827), 
+            (1282, 1729), 
+            (707, 723), 
+            (33, 704),
+            ]
 
 def main():
     print("ESCOLHA UM MAPA (obs: coloque o arquivo na pasta)")
@@ -523,10 +504,10 @@ def main():
         nome_arquivo_gr = './USA-road-d.W.gr'  # Arquivo de distâncias
         nome_arquivo_co = './USA-road-d.W.co'  # Arquivo de coordenadas
     elif escolha == "4":
-        nome_arquivo_gr = './USA-road-d.USA.co'
+        nome_arquivo_gr = './USA-road-d.USA.gr'
         nome_arquivo_co = './USA-road-d.USA.co'
     elif escolha == "2":
-        nome_arquivo_gr = './USA-road-d.E.co'
+        nome_arquivo_gr = './USA-road-d.E.gr'
         nome_arquivo_co = './USA-road-d.E.co'
     else:
         nome_arquivo_gr = './USA-road-d.NY.gr'
@@ -734,11 +715,11 @@ def main():
                 origem = i[0]
                 destino = i[1]
 
-                buscar_dijkstra(origem, destino)
                 buscar_bfs(origem, destino)
                 buscar_AEuclidean(origem, destino)
                 buscar_AManhattan(origem, destino)
                 buscar_AHaversine(origem, destino)
+                buscar_dijkstra(origem, destino)
 
                 criar_csv.write_csv(relatorio)
 

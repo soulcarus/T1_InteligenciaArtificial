@@ -6,14 +6,16 @@ def write_csv(dados):
 
     colunas = ['Algoritmo', 'Pontos', 'Caminho', 'Distancia', 'Nós Expandidos', 'Tempo', 'Fator de Ramificação Médio']
 
-    modo = ""
-
-    with open(arquivo, mode='r') as arq:
-        linha = arq.readlines()
-        if len(linha) >= 6:
-            modo = "a"
-        else:
-            modo = "w"
+    modo = "a"
+    try:
+        with open(arquivo, mode='r') as arq:
+            linha = arq.readlines()
+            if len(linha) >= 6:
+                modo = "a"
+            else:
+                modo = "w"
+    except Exception:
+        pass
 
     with open(arquivo, mode=modo, newline='') as arquivo_excel:
         writer = csv.writer(arquivo_excel)
