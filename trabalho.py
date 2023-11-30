@@ -1,9 +1,10 @@
+# USE O NOTEBOOK
+
 import time
 import math
 from functools import cache
 import pandas as pd
 import geopandas as gpd
-import networkx as nx
 from shapely.geometry import LineString, Point
 import criar_csv
 import psutil
@@ -15,8 +16,8 @@ global caminho
 pathTraveledGoing = []
 pathTraveledReturning = []
 
-def gerar_shapefile(caminhos):
-    grafo_coordenadas = ler_grafo_coordenadas("./USA-road-d.W.co")
+def gerar_shapefile(caminhos, arquivo):
+    grafo_coordenadas = arquivo
     coordenadas = []
     for i, j in grafo_coordenadas.items():
         if i in caminhos:
@@ -32,33 +33,31 @@ def ler_grafo_distancia(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINI
     grafo = {}
     with open(nome_arquivo, 'r') as arquivo:
         linhas = arquivo.readlines()
-        linhas = linhas[7:]
         for linha in linhas:
-            partes = linha.split()
-            origem = int(partes[1])
-            destino = int(partes[2])
-            distancia = int(partes[3])
-            if origem not in grafo:
-                grafo[origem] = []
-            grafo[origem].append((destino, distancia))
+            if linha[0] == "a":
+                partes = linha.split()
+                origem = int(partes[1])
+                destino = int(partes[2])
+                distancia = int(partes[3])
+                if origem not in grafo:
+                    grafo[origem] = []
+                grafo[origem].append((destino, distancia))
     return grafo
 
 def ler_grafo_coordenadas(nome_arquivo): #CONCLUÍDA COM FORMATO DE RETORNO DEFINIDO ( ÍCARO )
     grafo = {}
     with open(nome_arquivo, 'r') as arquivo:
         linhas = arquivo.readlines()
-        linhas = linhas[7:]
         for linha in linhas:
-            partes = linha.split()
-            origem = int(partes[1])
-            latitude = int(partes[2])
-            longitude = int(partes[3])
-            if origem not in grafo:
-                grafo[origem] = []
-            grafo[origem].append((latitude, longitude))
+            if linha[0] == "v":
+                partes = linha.split()
+                origem = int(partes[1])
+                latitude = int(partes[2])
+                longitude = int(partes[3])
+                if origem not in grafo:
+                    grafo[origem] = []
+                grafo[origem].append((latitude, longitude))
     return grafo
-
-
 
 #FUNÇÃO QUE MAPEIA O CAMINHO TRAÇADO
 def encontrar_caminho(anteriores, destino): #FUNÇÃO CONCLUÍDA ( ÍCARO )
@@ -128,10 +127,10 @@ def euclidean_dist(v1, v2, graph_co): #Função concluida (Carlos Gabriel)
     # lat2, long2 = latitude e longitude do vertice de destino
 
     #DIVISÃO POR 1 MILHAO
-    lat1 = lat1 / 1e6
-    lat2 = lat2 / 1e6
-    long1 = long1 / 1e6
-    long2 = long2 / 1e6
+    lat1 = lat1 / 1_000_000
+    lat2 = lat2 / 1_000_000
+    long1 = long1 / 1_000_000
+    long2 = long2 / 1_000_000
     
     #distancia = raiz(diferenças da latitude ao quadrado + diferenças da longitude ao quadrado)
     d = (((lat2 - lat1) ** 2) + ((long2 - long1) ** 2)) ** (1/2)
@@ -197,6 +196,28 @@ def manhattan_dist(v1, v2, graph_co): #Função concluida (Carlos Gabriel)
     disty = abs(long1 - long2)
     return 1 * (distx + disty)
     
+def pre_calcular_distancia(graph, graph_co):
+    euclidean = {}
+    haversine = {}
+    manhattan = {}
+    for i, j in graph.items():
+        for l in j:
+            for k in l:
+                if (i, k) not in euclidean:
+                    distancia = euclidean_dist(i, k, graph_co)
+                    euclidean[(i, k)] = distancia
+                if (i, k) not in haversine:
+                    distancia = haversine_dist(i, k, graph_co)
+                    haversine[(i, k)] = distancia
+                if (i, k) not in manhattan:
+                    distancia = manhattan_dist(i, k, graph_co)
+                    manhattan[(i, k)] = distancia
+    return euclidean, haversine, manhattan
+
+def find_distance(v1, v2, distancias):
+    print(v1, v2)
+    return distancias.get((v1, v2))
+
 def f_calc(vertice): #Função concluida (Carlos Gabriel)
     # f(n)=g(n)+h(n),
     # g(n) = custo até agora para chegar ao nó n
@@ -294,6 +315,9 @@ def a_star_search(initialVertice, finalVertice, graph, heuristica, graph_co):
             # print(path)
             current = [v for v in closedList if v["vertice"] == current["father"]][0] if current["father"] is not None else None
         # print(path)
+        print(closedList)
+        print("0----0")
+        # print(closedList)
         # print(path.reverse()) nao funciona?
         tempo_final = time.time()
         tempo = tempo_final - tempo_inicial
@@ -479,7 +503,6 @@ caminhos = [(1, 33),
             (990, 2027), 
             (1283, 5411), 
             (987, 1634), 
-            (13754, 1049281), 
             (979, 2338), 
             (1253, 1729), 
             (1260, 2027), 
@@ -515,8 +538,10 @@ def main():
 
     print('\nlendo arquivo de distancias...')
     grafo_distancias = ler_grafo_distancia(nome_arquivo_gr)
+    # print(distancias_euclidean)
     print('lendo arquivo de coordenadas...')
     grafo_coordenadas = ler_grafo_coordenadas(nome_arquivo_co)
+    # distancias_euclidean, distancias_haversine, distancias_manhattan = pre_calcular_distancia(grafo_distancias, grafo_coordenadas)
     print("\norigem atual: 1")
     print("destino atual: 33")
     choose = input("Alterar origem e destino? S/N? -> ")
@@ -597,6 +622,7 @@ def main():
                 relatorio["A* EUCLIDIANO"]["Nós Expandidos"] = nos_expandidos
                 relatorio["A* EUCLIDIANO"]["Tempo"] = tempo
                 relatorio["A* EUCLIDIANO"]["Fator de Ramificação Médio"] = nos_expandidos / tempo
+                return caminho
         
         def buscar_AHaversine(origem, destino):
                 caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias,"haversine", grafo_coordenadas)
@@ -606,6 +632,7 @@ def main():
                 relatorio["A* HAVERSINI"]["Nós Expandidos"] = nos_expandidos
                 relatorio["A* HAVERSINI"]["Tempo"] = tempo
                 relatorio["A* HAVERSINI"]["Fator de Ramificação Médio"] = nos_expandidos / tempo
+                return caminho
         
         def buscar_AManhattan(origem, destino):
                 caminho, tempo, nos_expandidos, distancia = a_star_search(origem, destino, grafo_distancias,"manhattan", grafo_coordenadas)
@@ -615,6 +642,7 @@ def main():
                 relatorio["A* MANHATTAN"]["Nós Expandidos"] = nos_expandidos
                 relatorio["A* MANHATTAN"]["Tempo"] = tempo
                 relatorio["A* MANHATTAN"]["Fator de Ramificação Médio"] = nos_expandidos / tempo
+                return caminho
 
         def buscar_dijkstra(origem, destino):
                 distancias, anteriores, tempo, expansoes = dijkstra_comprehension(grafo_distancias, origem)
@@ -627,6 +655,7 @@ def main():
                 relatorio["Dijkstra"]["Tempo"] = tempo
                 relatorio["Dijkstra"]["Nós Expandidos"] = expansoes
                 relatorio["Dijkstra"]["Fator de Ramificação Médio"] = expansoes / tempo
+                return caminho
 
         def buscar_bfs(origem, destino):
                 distancia, tempo, nos_expandidos, caminho = BFS_search(origem, destino, grafo_distancias)
@@ -636,6 +665,7 @@ def main():
                 relatorio["BFS"]["Nós Expandidos"] = nos_expandidos
                 relatorio["BFS"]["Tempo"] = tempo
                 relatorio["BFS"]["Fator de Ramificação Médio"] = nos_expandidos / tempo
+                return caminho
 
         def buscar_dfs(origem, destino):
                 distancia, tempo, nos_expandidos, caminho = DFS_search(origem, destino, grafo_distancias)
@@ -645,27 +675,28 @@ def main():
                 relatorio["DFS"]["Nós Expandidos"] = nos_expandidos
                 relatorio["DFS"]["Tempo"] = tempo
                 relatorio["DFS"]["Fator de Ramificação Médio"] = nos_expandidos / tempo
+                return caminho
 
         if entrada == '1':
-            buscar_AEuclidean(origem, destino)
+            caminho = buscar_AEuclidean(origem, destino)
 
         elif entrada == '2':
-            buscar_AHaversine(origem, destino)
+            caminho = buscar_AHaversine(origem, destino)
 
         elif entrada == '3':
-            buscar_AManhattan(origem, destino)
+            caminho = buscar_AManhattan(origem, destino)
 
         elif entrada == '4':
-            buscar_dijkstra(origem, destino)
+            caminho = buscar_dijkstra(origem, destino)
 
         elif entrada == '5':
-            buscar_bfs(origem, destino)
+            caminho = buscar_bfs(origem, destino)
         
         elif entrada == '6':
-            buscar_dfs(origem, destino)
+            caminho = buscar_dfs(origem, destino)
 
         elif entrada == "7":
-            gerar_shapefile(caminho)
+            gerar_shapefile(caminho, grafo_coordenadas)
 
         elif entrada == '8':
 

@@ -4,4 +4,6 @@ __pycache__
 *.gr
 **/*.co
 **/*.gr
+**/*.json
+trabalho.py
 QGIS/
